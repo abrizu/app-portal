@@ -1,0 +1,10 @@
+.env
+
+forms/*
+resumes/*
+
+!forms/.gitkeep
+!resumes/.gitkeep
+
+__pycache__/
+functions/__pycache__/
