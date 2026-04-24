@@ -20,7 +20,7 @@
 | `job_type` | VARCHAR(50) | no | `Full-time` · `Internship` · `Contract` · `Part-time` |
 | `salary_range` | VARCHAR(100) | no | e.g. `$60,000` or `80k-100k` |
 | `source` | VARCHAR(100) | no | `LinkedIn` · `Indeed` · `Referral` · `Company Site` · `Handshake` |
-| `resume_used` | VARCHAR(255) | no | Filename from `resumes/` folder (e.g. `AB_AIML_042326.pdf`) |
+| `resume_used` | VARCHAR(255) | no | Filename from `resumes/` folder (e.g. `INITIAL_ROLE_MMDDYY.pdf`) |
 | `notes` | TEXT | no | Freeform notes |
 | `created_at` | TIMESTAMP | auto | Set automatically on insert |
 | `updated_at` | TIMESTAMP | auto | Set automatically on update |
