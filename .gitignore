@@ -1,4 +1,5 @@
 app_portal.db
+users.db
 .env
 .venv
 plan.txt
