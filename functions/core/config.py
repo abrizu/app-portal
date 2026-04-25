@@ -12,8 +12,17 @@ STATUS_OPTIONS = ["Applied", "Screening", "Interviewing", "Technical", "Offer", 
 def _days_since(app_date):
     if app_date is None:
         return "-"
+    
+    # SQLite returns dates as strings (YYYY-MM-DD)
+    if isinstance(app_date, str):
+        try:
+            app_date = datetime.strptime(app_date, "%Y-%m-%d").date()
+        except ValueError:
+            return "-"
+
     if isinstance(app_date, datetime):
         app_date = app_date.date()
+        
     delta = (date.today() - app_date).days
     if delta == 0:
         return "today"

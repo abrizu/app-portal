@@ -22,6 +22,8 @@
 | `source` | VARCHAR(100) | no | `LinkedIn` · `Indeed` · `Referral` · `Company Site` · `Handshake` |
 | `resume_used` | VARCHAR(255) | no | Filename from `resumes/` folder (e.g. `INITIAL_ROLE_MMDDYY.pdf`) |
 | `notes` | TEXT | no | Freeform notes |
+| `priority_score` | INTEGER | no | Manual interest rating: `1` (lowest) to `10` (highest) |
+| `attainability_score` | INTEGER | no | Auto-computed from resume keyword matching: `1` (least) to `10` (most) |
 | `created_at` | TIMESTAMP | auto | Set automatically on insert |
 | `updated_at` | TIMESTAMP | auto | Set automatically on update |
 

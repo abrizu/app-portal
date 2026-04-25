@@ -1,5 +1,8 @@
 app_portal.db
 .env
+.venv
+plan.txt
+app_notes.txt
 
 forms/*
 resumes/*

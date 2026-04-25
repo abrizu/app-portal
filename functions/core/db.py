@@ -1,8 +1,3 @@
-"""
-db.py - Database connection and table setup for Job Application Tracker.
-Uses sqlite3 for a zero-setup local database.
-"""
-
 import sqlite3
 from pathlib import Path
 
@@ -48,6 +43,22 @@ def initialize_database():
             updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
+
+    # ── Migration: add priority / attainability columns if missing ──
+    cur.execute("PRAGMA table_info(applications);")
+    existing_cols = {row["name"] for row in cur.fetchall()}
+
+    if "priority_score" not in existing_cols:
+        cur.execute("""
+            ALTER TABLE applications
+            ADD COLUMN priority_score INTEGER CHECK (priority_score BETWEEN 1 AND 10);
+        """)
+
+    if "attainability_score" not in existing_cols:
+        cur.execute("""
+            ALTER TABLE applications
+            ADD COLUMN attainability_score INTEGER CHECK (attainability_score BETWEEN 1 AND 10);
+        """)
 
     conn.commit()
     cur.close()

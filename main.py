@@ -3,19 +3,22 @@ main.py - Interactive CLI for the Job Application Tracker.
 Run:  python main.py
 """
 
-import os
-import yaml
-from datetime import date, datetime
-from pathlib import Path
-from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
-from rich.prompt import Prompt, Confirm
-from rich import box
+from rich.prompt import Prompt
 
-from functions.manage_apps import *
-from functions.db import get_connection, get_cursor, initialize_database
-from functions.config import console, FORMS_DIR, STATUS_OPTIONS, _days_since
+from functions.core.db import initialize_database
+from functions.core.config import console
+
+# Menu action imports — one per module
+from functions.actions.forms import generate_form, generate_edit_form, submit_form
+from functions.actions.list_apps import list_applications
+from functions.actions.view_app import view_application
+from functions.actions.status_update import update_status
+from functions.actions.delete_app import delete_application
+from functions.actions.search import search_applications
+from functions.actions.summary import show_summary
+from functions.scoring.score_update import quick_score_update
+from functions.scoring.priority_graph import show_priority_graph
 
 # ──────────────────────────── main menu ────────────────────────────
 
@@ -40,6 +43,8 @@ def main():
         "7": ("Delete Application",   delete_application),
         "8": ("Search",               search_applications),
         "9": ("Summary / Stats",      show_summary),
+        "S": ("Quick Score Update",   quick_score_update),
+        "P": ("Priority Graph",       show_priority_graph),
         "0": ("Exit",                 None),
     }
 
@@ -48,7 +53,14 @@ def main():
         for key, (label, _) in menu_items.items():
             console.print(f"  [bold cyan][{key}][/bold cyan] {label}")
 
-        choice = Prompt.ask("\nChoose an option", choices=list(menu_items.keys()), default="4")
+        all_choices = []
+        for k in menu_items.keys():
+            all_choices.append(k)
+            if k.isalpha():
+                all_choices.append(k.lower())
+
+        choice = Prompt.ask("\nChoose an option", choices=all_choices, default="4")
+        choice = choice.upper()  # Normalize letter keys
 
         if choice == "0":
             console.print("[dim]Goodbye![/dim]\n")
