@@ -27,6 +27,7 @@ def update_status():
 
     # Shortcut map: single letter -> full status name
     status_shortcuts = {
+        "AP": "Applying",
         "A": "Applied",
         "S": "Screening",
         "I": "Interviewing",
@@ -38,8 +39,8 @@ def update_status():
     }
 
     console.print(f"  Current: [bold]{row['job_title']}[/bold] @ {row['company_name']} — [{row['status']}]")
-    console.print("  [bold]Options:[/bold]  [cyan](A)[/cyan]pplied  [cyan](S)[/cyan]creening  [cyan](I)[/cyan]nterviewing  [cyan](T)[/cyan]echnical")
-    console.print("            [cyan](O)[/cyan]ffer    [cyan](R)[/cyan]ejected   [cyan](W)[/cyan]ithdrawn     [cyan](G)[/cyan]hosted")
+    console.print("  [bold]Options:[/bold]  [cyan](AP)[/cyan]plying    [cyan](A)[/cyan]pplied     [cyan](S)[/cyan]creening  [cyan](I)[/cyan]nterviewing")
+    console.print("            [cyan](T)[/cyan]echnical  [cyan](O)[/cyan]ffer       [cyan](R)[/cyan]ejected   [cyan](W)[/cyan]ithdrawn     [cyan](G)[/cyan]hosted")
     raw = Prompt.ask("[bold]New status[/bold]", default=row["status"])
 
     # Resolve shortcut letter to full name

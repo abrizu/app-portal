@@ -78,14 +78,14 @@ def _form_header_comment(mode="new", app_id=None):
     lines += [
         "# ╠══════════════════════════════════════════════════════════════╣",
         "# ║  STATUS OPTIONS:                                             ║",
-        "# ║  Applied | Screening | Interviewing | Technical              ║",
-        "# ║  Offer   | Rejected  | Withdrawn    | Ghosted                ║",
+        "# ║  Applying | Applied   | Screening | Interviewing | Technical ║",
+        "# ║  Offer    | Rejected  | Withdrawn | Ghosted                  ║",
         "# ║                                                              ║",
         "# ║  DATE FORMAT: YYYY-MM-DD  (or N/A if unknown)                ║",
         "# ║  TECHNOLOGIES: comma-separated (e.g. Python, SQL, AWS)       ║",
         "# ║                                                              ║",
         "# ║  PRIORITY SCORE: 1-10  (10 = highest interest, 1 = lowest)   ║",
-        "# ║  ATTAINABILITY: auto-computed from resume (not editable)      ║",
+        "# ║  ATTAINABILITY: auto-computed from resume (not editable)     ║",
     ]
     lines += [
         "# ╚══════════════════════════════════════════════════════════════╝",
