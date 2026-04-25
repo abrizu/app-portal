@@ -9,16 +9,14 @@ from rich.prompt import Prompt
 from functions.core.db import initialize_database
 from functions.core.config import console
 
-# Menu action imports — one per module
+# Menu action imports
 from functions.actions.forms import generate_form, generate_edit_form, submit_form
 from functions.actions.list_apps import list_applications
 from functions.actions.view_app import view_application
 from functions.actions.status_update import update_status
 from functions.actions.delete_app import delete_application
 from functions.actions.search import search_applications
-from functions.actions.summary import show_summary
-from functions.scoring.score_update import quick_score_update
-from functions.scoring.priority_graph import show_priority_graph
+from functions.actions.summary import summary_menu
 
 # ──────────────────────────── main menu ────────────────────────────
 
@@ -42,9 +40,7 @@ def main():
         "6": ("Quick Status Update",  update_status),
         "7": ("Delete Application",   delete_application),
         "8": ("Search",               search_applications),
-        "9": ("Summary / Stats",      show_summary),
-        "S": ("Quick Score Update",   quick_score_update),
-        "P": ("Priority Graph",       show_priority_graph),
+        "9": ("Summary / Stats",      summary_menu),
         "0": ("Exit",                 None),
     }
 

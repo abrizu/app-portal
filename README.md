@@ -1,4 +1,4 @@
-# personal custom job application portal
+# custom job application portal
 
 lightweight and simple cli application for tracking job applications.
 (must be run in vscode terminal)
