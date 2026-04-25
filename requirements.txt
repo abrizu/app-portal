@@ -3,3 +3,4 @@ tabulate
 pyyaml
 plotext
 pypdf
+bcrypt

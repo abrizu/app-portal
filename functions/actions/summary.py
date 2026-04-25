@@ -8,6 +8,9 @@ from rich import box
 
 from functions.core.db import get_connection, get_cursor
 from functions.core.config import console
+from functions.scoring.score_update import quick_score_update
+from functions.scoring.priority_graph import show_priority_graph
+from rich.prompt import Prompt
 
 
 def show_summary():
@@ -48,3 +51,24 @@ def show_summary():
             ct.add_row(c["company_name"], str(c["cnt"]))
         console.print(ct)
     console.print()
+
+
+def summary_menu():
+    """Sub-menu for Summary, Scoring, and Priority Graph."""
+    while True:
+        console.print("\n[bold]── Summary / Stats Menu ──[/bold]")
+        console.print("  [bold cyan][1][/bold cyan] Quick Score Update")
+        console.print("  [bold cyan][2][/bold cyan] Priority Graph")
+        console.print("  [bold cyan][3][/bold cyan] View General Summary")
+        console.print("  [bold cyan][0][/bold cyan] Back to Main Menu")
+
+        choice = Prompt.ask("\nChoose an option", choices=["1", "2", "3", "0"], default="3")
+
+        if choice == "1":
+            quick_score_update()
+        elif choice == "2":
+            show_priority_graph()
+        elif choice == "3":
+            show_summary()
+        elif choice == "0":
+            break
