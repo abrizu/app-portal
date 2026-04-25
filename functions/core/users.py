@@ -21,7 +21,7 @@ from functions.users.update_user import update_user
 from functions.users.delete_user import delete_user
 
 
-def main() -> None:
+def users_menu() -> None:
     """Initialize the users DB, authenticate, then run the interactive menu loop."""
     initialize_users_database()
 
@@ -34,7 +34,7 @@ def main() -> None:
 
     # ── Authentication gate ──────────────────────────────────────────
     if not login():
-        raise SystemExit(1)
+        return  # Return instead of exit to allow going back to the main launcher
 
     # ── Menu ─────────────────────────────────────────────────────────
     menu_items = {
@@ -43,7 +43,7 @@ def main() -> None:
         "3": ("View Credentials",     view_credentials),
         "4": ("Update User",          update_user),
         "5": ("Delete User",          delete_user),
-        "0": ("Exit",                 None),
+        "0": ("Back to Launcher",     None),
     }
 
     while True:
@@ -58,7 +58,7 @@ def main() -> None:
         )
 
         if choice == "0":
-            console.print("[dim]Goodbye![/dim]\n")
+            console.print("[dim]Returning to Launcher...[/dim]\n")
             break
 
         _, action = menu_items[choice]
@@ -67,4 +67,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    users_menu()

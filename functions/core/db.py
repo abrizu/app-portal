@@ -1,8 +1,8 @@
 import sqlite3
 from pathlib import Path
 
-# The database file will be created in the root of the project
-DB_PATH = Path(__file__).parent.parent.parent / "app_portal.db"
+# The database file will be created in the databases folder in the project root
+DB_PATH = Path(__file__).parent.parent.parent / "databases" / "app_portal.db"
 
 
 def get_connection():

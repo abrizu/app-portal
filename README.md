@@ -15,17 +15,9 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 3. Run the application
-
-### There are two scripts to run, depending on what you want to do:
 ```bash
 python main.py
 ```
-manages job applications database.
-
-```bash
-python users.py
-```
-manages username/passcode database.
 
 ## main workflow:
 1. generate form

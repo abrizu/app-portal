@@ -1,9 +1,7 @@
-app_portal.db
-users.db
+databases/
 .env
 .venv
-plan.txt
-app_notes.txt
+scratch/
 
 forms/*
 resumes/*

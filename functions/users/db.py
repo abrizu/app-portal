@@ -5,8 +5,9 @@ functions/users/db.py - Database connection and initialization for users.db.
 import sqlite3
 from pathlib import Path
 
-# Stored alongside app_portal.db in the project root
-USERS_DB_PATH = Path(__file__).parent.parent.parent / "users.db"
+# Stored alongside app_portal.db in the databases directory
+USERS_DB_PATH = Path(__file__).parent.parent.parent / "databases" / "users.db"
+
 
 
 def get_users_connection() -> sqlite3.Connection:
@@ -50,7 +51,8 @@ def initialize_users_database() -> None:
 
 # ── app_portal.db cross-reference helpers ────────────────────────────────────
 
-_PORTAL_DB_PATH = Path(__file__).parent.parent.parent / "app_portal.db"
+_PORTAL_DB_PATH = Path(__file__).parent.parent.parent / "databases" / "app_portal.db"
+
 
 
 def get_job_title(app_id: int) -> str | None:
