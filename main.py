@@ -3,6 +3,10 @@ main.py - Interactive CLI for the Job Application Tracker.
 Run:  python main.py
 """
 
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent / "backend"))
+
 from rich.prompt import Prompt
 from functions.core.config import console
 
@@ -15,7 +19,7 @@ def main():
     while True:
         console.print("\n[bold]── Main Launcher ──[/bold]")
         console.print("  [bold cyan][1][/bold cyan] Applications Menu")
-        console.print("  [bold cyan][2][/bold cyan] Application Users Menu")
+        console.print("  [bold cyan][2][/bold cyan] Users Menu")
         console.print("  [bold cyan][0][/bold cyan] Exit")
         
         choice = Prompt.ask("\nChoose an option", choices=["1", "2", "0"], default="1")
