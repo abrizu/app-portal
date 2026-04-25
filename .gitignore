@@ -1,13 +1,14 @@
-databases/
 .env
 .venv
 scratch/
 
 forms/*
 resumes/*
+databases/*
 
 !forms/.gitkeep
 !resumes/.gitkeep
+!databases/.gitkeep
 
 __pycache__/
 functions/__pycache__/
