@@ -81,6 +81,7 @@ async function renderDashboardView() {
   `;
 
   document.getElementById('btn-new-app').addEventListener('click', () => {
+    setActiveNav(null);
     renderNewApplicationView();
   });
 
@@ -158,6 +159,7 @@ function populateDashboardData(apps) {
 // ─── New Application View ─────────────────────────────────────────────────────
 
 async function renderNewApplicationView() {
+  setActiveNav(null); // Unhighlight nav bar
   const mainContent = document.querySelector('.main-content');
   if (!mainContent) return;
 
@@ -333,8 +335,12 @@ async function renderNewApplicationView() {
   `;
 
   // Back / Cancel
-  document.getElementById('btn-back').addEventListener('click', () => renderDashboardView());
-  document.getElementById('btn-cancel').addEventListener('click', () => renderDashboardView());
+  const goBack = () => {
+    setActiveNav('nav-dashboard');
+    renderDashboardView();
+  };
+  document.getElementById('btn-back').addEventListener('click', goBack);
+  document.getElementById('btn-cancel').addEventListener('click', goBack);
 
   // Populate resumes async
   resumesPromise.then(resumes => {
@@ -435,7 +441,10 @@ async function handleFormSubmit() {
 
   if (result?.success) {
     showToast(`Application to ${payload.company_name} submitted!`, 'success');
-    setTimeout(() => renderDashboardView(), 700);
+    setTimeout(() => {
+      setActiveNav('nav-dashboard');
+      renderDashboardView();
+    }, 700);
   } else {
     showToast(result?.error || 'Something went wrong. Please try again.', 'error');
     submitBtn.disabled = false;
@@ -526,7 +535,10 @@ async function renderApplicationsListView() {
     </div>
   `;
 
-  document.getElementById('btn-new-app-list').addEventListener('click', () => renderNewApplicationView());
+  document.getElementById('btn-new-app-list').addEventListener('click', () => {
+    setActiveNav(null);
+    renderNewApplicationView();
+  });
   document.getElementById('btn-quick-status').addEventListener('click', () => showQuickStatusUpdate());
 
   _appCache = await fetchApplications();
