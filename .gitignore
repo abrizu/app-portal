@@ -3,12 +3,12 @@
 scratch/
 
 forms/*
-resumes/*
-databases/*
+backend/resumes/*
+backend/databases/*
 
 !forms/.gitkeep
-!resumes/.gitkeep
-!databases/.gitkeep
+!backend/resumes/.gitkeep
+!backend/databases/.gitkeep
 
 __pycache__/
 functions/__pycache__/
