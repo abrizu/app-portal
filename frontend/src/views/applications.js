@@ -135,7 +135,6 @@ function renderAppTable() {
       <td style="color:var(--text-secondary);">${a.application_date || '—'}</td>
       <td>
         <div class="row-actions">
-          <button class="btn-icon act-view" title="View" data-id="${a.id}">👁</button>
           <button class="btn-icon act-edit" title="Edit" data-id="${a.id}">✎</button>
           <button class="btn-icon danger act-del" title="Delete" data-id="${a.id}">🗑</button>
         </div>

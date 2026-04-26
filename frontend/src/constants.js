@@ -14,6 +14,7 @@ export const JOB_TYPE_OPTIONS = [
 ];
 
 export const SALARY_PRESETS = [
+  'Not Disclosed',
   '$20,000 – $30,000',
   '$30,000 – $40,000',
   '$40,000 – $50,000',
