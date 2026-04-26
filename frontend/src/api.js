@@ -75,6 +75,75 @@ export async function deleteApplication(id) {
     }
 }
 
+/*------------------------------- Drafts -------------------------------*/
+
+export async function fetchDrafts() {
+    try {
+        const response = await fetch(`${API_URL}/drafts`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        return data.drafts || [];
+    } catch (error) {
+        console.error("Could not fetch drafts:", error);
+        return [];
+    }
+}
+
+export async function fetchDraft(id) {
+    try {
+        const response = await fetch(`${API_URL}/drafts/${id}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        return data.draft || null;
+    } catch (error) {
+        console.error("Could not fetch draft:", error);
+        return null;
+    }
+}
+
+export async function createDraft(draftData) {
+    try {
+        const response = await fetch(`${API_URL}/drafts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(draftData)
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Could not create draft:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function updateDraft(id, draftData) {
+    try {
+        const response = await fetch(`${API_URL}/drafts/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(draftData)
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Could not update draft:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function deleteDraft(id) {
+    try {
+        const response = await fetch(`${API_URL}/drafts/${id}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return { success: true };
+    } catch (error) {
+        console.error("Could not delete draft:", error);
+        return { success: false, error: error.message };
+    }
+}
+
 /*------------------------------- Resumes -------------------------------*/
 
 export async function fetchResumes() {

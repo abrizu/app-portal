@@ -192,5 +192,117 @@ def delete_application(app_id: int):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+class ApplicationDraft(BaseModel):
+    job_title: str | None = None
+    company_name: str | None = None
+    posting_date: str | None = None
+    application_date: str | None = None
+    status: str | None = "Draft"
+    technologies: str | None = None
+    posting_url: str | None = None
+    location: str | None = None
+    job_type: str | None = None
+    salary_range: str | None = None
+    source: str | None = None
+    resume_used: str | None = None
+    priority_score: int | None = None
+    notes: str | None = None
+
+@app.get("/api/drafts")
+def get_drafts():
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM drafts ORDER BY updated_at DESC")
+        drafts = [dict(row) for row in cur.fetchall()]
+        conn.close()
+        return {"success": True, "drafts": drafts}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/drafts")
+def create_draft(draft_in: ApplicationDraft):
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        
+        cur.execute("""
+            INSERT INTO drafts
+                (job_title, company_name, posting_date, application_date, status,
+                 technologies, posting_url, location, job_type, salary_range, source, resume_used,
+                 priority_score, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            draft_in.job_title, draft_in.company_name, draft_in.posting_date, draft_in.application_date, draft_in.status,
+            draft_in.technologies, draft_in.posting_url, draft_in.location, draft_in.job_type,
+            draft_in.salary_range, draft_in.source, draft_in.resume_used, draft_in.priority_score, draft_in.notes,
+        ))
+        new_id = cur.lastrowid
+        conn.commit()
+        cur.close()
+        conn.close()
+        return {"success": True, "id": new_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/drafts/{draft_id}")
+def get_draft(draft_id: int):
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM drafts WHERE id = ?", (draft_id,))
+        row = cur.fetchone()
+        conn.close()
+        if row is None:
+            raise HTTPException(status_code=404, detail="Draft not found")
+        return {"success": True, "draft": dict(row)}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/api/drafts/{draft_id}")
+def update_draft(draft_id: int, draft_in: ApplicationDraft):
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        update_data = {k: v for k, v in draft_in.model_dump().items() if v is not None}
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No fields to update")
+
+        set_clause = ", ".join(f"{k} = ?" for k in update_data.keys())
+        values = list(update_data.values()) + [draft_id]
+        cur.execute(f"UPDATE drafts SET {set_clause}, updated_at = CURRENT_TIMESTAMP WHERE id = ?", values)
+        conn.commit()
+
+        if cur.rowcount == 0:
+            conn.close()
+            raise HTTPException(status_code=404, detail="Draft not found")
+        cur.close()
+        conn.close()
+        return {"success": True, "id": draft_id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/drafts/{draft_id}")
+def delete_draft(draft_id: int):
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM drafts WHERE id = ?", (draft_id,))
+        conn.commit()
+        if cur.rowcount == 0:
+            conn.close()
+            raise HTTPException(status_code=404, detail="Draft not found")
+        cur.close()
+        conn.close()
+        return {"success": True, "id": draft_id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     uvicorn.run("server:app", host="127.0.0.1", port=8000, reload=True)

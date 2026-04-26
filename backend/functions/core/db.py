@@ -44,6 +44,28 @@ def initialize_database():
         );
     """)
 
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS drafts (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            job_title       VARCHAR(255),
+            company_name    VARCHAR(255),
+            posting_date    DATE,
+            application_date DATE,
+            status          VARCHAR(50)  DEFAULT 'Draft',
+            technologies    TEXT,
+            posting_url     TEXT,
+            location        VARCHAR(255),
+            job_type        VARCHAR(50),
+            salary_range    VARCHAR(100),
+            source          VARCHAR(100),
+            resume_used     VARCHAR(255),
+            priority_score  INTEGER,
+            notes           TEXT,
+            created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
     # ── Migration: add priority / attainability columns if missing ──
     cur.execute("PRAGMA table_info(applications);")
     existing_cols = {row["name"] for row in cur.fetchall()}

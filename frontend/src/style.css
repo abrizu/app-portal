@@ -334,7 +334,7 @@ h6 {
 .form-textarea:focus {
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-  background: rgba(59, 130, 246, 0.05);
+  background-color: rgba(59, 130, 246, 0.05);
 }
 
 .form-input.error,
