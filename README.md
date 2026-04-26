@@ -1,7 +1,6 @@
 # custom job application portal
 
-lightweight and simple cli application for tracking job applications.
-(must be run in vscode terminal)
+lightweight app for tracking job applications. currently works both as a cli and a web server. 
 
 ## how to run:
 
@@ -14,16 +13,18 @@ python -m venv .venv
 ```bash
 pip install -r requirements.txt
 ```
-3. Run the application
+3.1. As a CLI
 ```bash
 python main.py
 ```
 
-## main workflow:
-1. generate form
-2. fill in yaml file
-3. back in main menu, submit form
-4. check status from main menu
+3.2 As a web server (Vite / FastAPI)
+```powershell
+.\run.ps1
+```
 
-- can also search, view, update, and delete applications as well.
-- form parameters can be reviewed inside of schema.md.
+## features:
+
+- easily fill out application forms and have full control over managing them.
+- simple workflow (populate, submit, review forms)
+- easy form navigation
