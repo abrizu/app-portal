@@ -2,11 +2,11 @@
 .venv
 scratch/
 
-backend/forms/*
+forms/*
 backend/resumes/*
 backend/databases/*
 
-!backend/forms/.gitkeep
+!forms/.gitkeep
 !backend/resumes/.gitkeep
 !backend/databases/.gitkeep
 
