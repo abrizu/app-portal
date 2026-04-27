@@ -333,7 +333,7 @@ async function openDetailPanel(id) {
 
       <div class="detail-actions">
         <button class="btn" id="detail-edit-btn">Edit</button>
-        <button class="btn btn-secondary btn-danger" id="detail-delete-btn" style="margin-left:auto;">🗑 Delete</button>
+        <button class="btn btn-secondary btn-danger" id="detail-delete-btn" style="margin-left:auto;">Delete</button>
       </div>
     </div>
   `;
@@ -598,6 +598,17 @@ async function handleEditSubmit(id) {
     if (!val(i)) { get(i).classList.add('error'); valid = false; }
   });
   if (!valid) { showToast('Please fill in all required fields.', 'error'); return; }
+
+  // Date validation: posting_date cannot be in the future
+  const postingDate = val('posting_date');
+  if (postingDate) {
+    const today = new Date().toISOString().split('T')[0];
+    if (postingDate > today) {
+      get('posting_date').classList.add('error');
+      showToast('Posting date cannot be in the future.', 'error');
+      return;
+    }
+  }
 
   const salaryMode = document.querySelector('input[name="salary_mode"]:checked')?.value;
   const salary_range = salaryMode === 'custom' ? val('salary_range_custom') || null : val('salary_range_select') || null;

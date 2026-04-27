@@ -313,6 +313,16 @@ async function handleSaveDraft(draftId) {
     notes: val('notes') || null,
   };
 
+  // Date validation: posting_date cannot be in the future
+  if (payload.posting_date) {
+    const today = new Date().toISOString().split('T')[0];
+    if (payload.posting_date > today) {
+      get('posting_date').classList.add('error');
+      showToast('Posting date cannot be in the future.', 'error');
+      return;
+    }
+  }
+
   const btn = document.getElementById('btn-save-draft');
   btn.disabled = true;
   btn.textContent = 'Saving…';
@@ -355,6 +365,17 @@ async function handleFormSubmit(draftId) {
   if (!valid) {
     showToast('Please fill in all required fields.', 'error');
     return;
+  }
+
+  // Date validation: posting_date cannot be in the future
+  const postingDate = val('posting_date');
+  if (postingDate) {
+    const today = new Date().toISOString().split('T')[0];
+    if (postingDate > today) {
+      get('posting_date').classList.add('error');
+      showToast('Posting date cannot be in the future.', 'error');
+      return;
+    }
   }
 
   // Resolve salary & source based on toggle mode
