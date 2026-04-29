@@ -1,10 +1,60 @@
 const API_URL = 'http://127.0.0.1:8000/api';
 
+function getAuthHeaders() {
+    const token = localStorage.getItem('auth_token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
+/*------------------------------- Auth -------------------------------*/
+
+export async function checkAuth() {
+    try {
+        const response = await fetch(`${API_URL}/auth/check`);
+        if (!response.ok) throw new Error('HTTP error');
+        return await response.json();
+    } catch (e) {
+        return { has_users: false };
+    }
+}
+
+export async function register(username, password) {
+    try {
+        const response = await fetch(`${API_URL}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || 'Registration failed');
+        return data;
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+export async function login(username, password) {
+    try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || 'Login failed');
+        return data;
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
 /*------------------------------- Applications -------------------------------*/
 
+// batch fetching
 export async function fetchApplications() {
     try {
-        const response = await fetch(`${API_URL}/applications`);
+        const response = await fetch(`${API_URL}/applications`, {
+            headers: getAuthHeaders()
+        });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -16,9 +66,12 @@ export async function fetchApplications() {
     }
 }
 
+// fetch single application
 export async function fetchApplication(id) {
     try {
-        const response = await fetch(`${API_URL}/applications/${id}`);
+        const response = await fetch(`${API_URL}/applications/${id}`, {
+            headers: getAuthHeaders()
+        });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         return data.application || null;
@@ -33,7 +86,8 @@ export async function createApplication(appData) {
         const response = await fetch(`${API_URL}/applications`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                ...getAuthHeaders()
             },
             body: JSON.stringify(appData)
         });
@@ -50,7 +104,8 @@ export async function updateApplication(id, appData) {
         const response = await fetch(`${API_URL}/applications/${id}`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                ...getAuthHeaders()
             },
             body: JSON.stringify(appData)
         });
@@ -65,7 +120,8 @@ export async function updateApplication(id, appData) {
 export async function deleteApplication(id) {
     try {
         const response = await fetch(`${API_URL}/applications/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: getAuthHeaders()
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return { success: true };
@@ -79,7 +135,9 @@ export async function deleteApplication(id) {
 
 export async function fetchDrafts() {
     try {
-        const response = await fetch(`${API_URL}/drafts`);
+        const response = await fetch(`${API_URL}/drafts`, {
+            headers: getAuthHeaders()
+        });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         return data.drafts || [];
@@ -91,7 +149,9 @@ export async function fetchDrafts() {
 
 export async function fetchDraft(id) {
     try {
-        const response = await fetch(`${API_URL}/drafts/${id}`);
+        const response = await fetch(`${API_URL}/drafts/${id}`, {
+            headers: getAuthHeaders()
+        });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         return data.draft || null;
@@ -105,7 +165,7 @@ export async function createDraft(draftData) {
     try {
         const response = await fetch(`${API_URL}/drafts`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
             body: JSON.stringify(draftData)
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -120,7 +180,7 @@ export async function updateDraft(id, draftData) {
     try {
         const response = await fetch(`${API_URL}/drafts/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
             body: JSON.stringify(draftData)
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -134,7 +194,8 @@ export async function updateDraft(id, draftData) {
 export async function deleteDraft(id) {
     try {
         const response = await fetch(`${API_URL}/drafts/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: getAuthHeaders()
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return { success: true };
@@ -148,7 +209,9 @@ export async function deleteDraft(id) {
 
 export async function fetchResumes() {
     try {
-        const response = await fetch(`${API_URL}/resumes`);
+        const response = await fetch(`${API_URL}/resumes`, {
+            headers: getAuthHeaders()
+        });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         return data.resumes || [];
@@ -162,6 +225,7 @@ export async function uploadResume(formData) {
     try {
         const response = await fetch(`${API_URL}/resumes/upload`, {
             method: 'POST',
+            headers: getAuthHeaders(),
             body: formData
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -175,7 +239,8 @@ export async function uploadResume(formData) {
 export async function deleteResume(id) {
     try {
         const response = await fetch(`${API_URL}/resumes/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: getAuthHeaders()
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return { success: true };

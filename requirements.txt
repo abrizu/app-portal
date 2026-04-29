@@ -6,3 +6,7 @@ pypdf
 bcrypt
 fastapi
 uvicorn
+
+PyJWT
+python-multipart
+passlib[bcrypt]
