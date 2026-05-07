@@ -1,7 +1,7 @@
 import { fetchDrafts, deleteDraft } from '../api.js';
 import { setActiveNav } from '../utils.js';
-import { renderApplicationsListView } from './applications.js';
-import { renderNewApplicationView } from './newApplication.js';
+import { renderApplicationsListView } from './applications/applications.js';
+import { renderNewApplicationView } from './new_application/newApplication.js';
 
 export async function renderDraftsListView() {
   const mainContent = document.querySelector('.main-content');
