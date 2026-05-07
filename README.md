@@ -4,8 +4,8 @@ A simple job application tracker designed for full control over your application
 
 *Originally started as a personal project.* 
 
-![Dashboard Overview](references\dashboard.png)
-![Application Overview](references\new_application.png)
+![Dashboard Overview](references/dashboard.png)
+![Application Overview](references/new_application.png)
 
 ## Core Features
 
