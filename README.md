@@ -37,6 +37,8 @@ The fastest way to get the portal running is using **Docker**. This ensures all 
    - **Web UI**: [http://localhost:5173](http://localhost:5173)
    - **API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
 
+*Disclaimer: Current progress is limited to local hosting only, and future progress will include live web hosting.*
+
 ---
 
 ## Alternative Startup (Local PowerShell)
