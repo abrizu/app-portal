@@ -116,7 +116,7 @@ function renderAppTable() {
   if (countEl) countEl.textContent = `${apps.length} application${apps.length !== 1 ? 's' : ''} found`;
 
   if (apps.length === 0) {
-    wrap.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div><p>No applications match your filters.</p></div>`;
+    wrap.innerHTML = `<div class="empty-state"><div class="empty-state-icon"></div><p>No applications match your filters.</p></div>`;
     return;
   }
 
@@ -386,11 +386,11 @@ async function openDetailPanel(id) {
       e.preventDefault();
       const filename = link.dataset.filename;
       if (!filename) return;
-      
+
       const oldText = link.textContent;
       link.textContent = 'Opening...';
       link.style.pointerEvents = 'none';
-      
+
       const blob = await downloadResume(filename);
       if (blob) {
         const url = URL.createObjectURL(blob);
@@ -399,7 +399,7 @@ async function openDetailPanel(id) {
       } else {
         showToast('Failed to download resume.', 'error');
       }
-      
+
       link.textContent = oldText;
       link.style.pointerEvents = 'auto';
     });

@@ -1,8 +1,11 @@
 # Job Application Portal
 
-A premium, state-of-the-art job application tracker designed for modern developers. This portal combines a stunning **glassmorphic** web interface with a powerful **CLI** for maximum flexibility in tracking your career journey.
+A simple job application tracker designed for full control over your applications. This portal combines a **glassmorphic** web interface with an alternative **CLI** manager for maximum flexibility in logging your career journey.
 
-![Dashboard Overview](https://github.com/user-attachments/assets/placeholder)
+*Originally started as a personal project.* 
+
+![Dashboard Overview](references\dashboard.png)
+![Application Overview](references\new_application.png)
 
 ## Core Features
 
