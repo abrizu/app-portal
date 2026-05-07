@@ -24,16 +24,31 @@ A simple job application tracker designed for full control over your application
 
 ---
 
-## Quick Start
+## Quick Start (Recommended)
 
-The easiest way to get the portal running on Windows is using the provided startup script:
+The fastest way to get the portal running is using **Docker**. This ensures all dependencies (Python, Node.js) are handled automatically.
 
 1. **Clone the repository** and navigate to the directory.
-2. **Execute the runner**:
+2. **Start the stack**:
+   ```bash
+   docker compose up --build
+   ```
+3. **Access the App**:
+   - **Web UI**: [http://localhost:5173](http://localhost:5173)
+   - **API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+---
+
+## Alternative Startup (Local PowerShell)
+
+If you prefer to run it locally on Windows:
+
+1. **Execute the runner**:
    ```powershell
    .\run.ps1
    ```
    *This script automatically starts both the FastAPI backend and the Vite frontend.*
+
 
 ---
 
@@ -89,12 +104,13 @@ npm run dev
 
 I am continuously evolving the portal. Key upcoming features include:
 
+- [x] **Dockerization**: Containerizing the entire stack for seamless, one-click deployment.
 - [ ] **Agentic Job Search**: Integration with LLM agents (like OpenClaw) to automatically discover and recommend jobs matching your resume.
-- [ ] **Dockerization**: Containerizing the entire stack for seamless, one-click deployment.
 - [ ] **Advanced Analytics**: GitHub-style contribution graphs for daily application activity and conversion rate metrics.
 - [ ] **Mobile Integration**: SMS/Push notifications for new job matches and upcoming interview reminders.
 - [ ] **Geospatial Intelligence**: Integration with maps to show job proximity based on user demographics.
 - [ ] **Freshness Warnings**: Visual indicators for job postings that are getting old (1 week = Green, 4 weeks = Red).
+- [ ] **Cross-Platforming**: Ability to view this application on both web and mobile devices.
 
 ---
 
