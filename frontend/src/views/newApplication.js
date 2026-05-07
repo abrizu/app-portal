@@ -1,4 +1,4 @@
-import { fetchDraft, fetchResumes, createDraft, updateDraft, createApplication, deleteDraft } from '../api.js';
+import { fetchDraft, fetchResumes, createDraft, updateDraft, createApplication, deleteDraft, generatePassword } from '../api.js';
 import { SALARY_PRESETS, SOURCE_OPTIONS, JOB_TYPE_OPTIONS, STATUS_OPTIONS } from '../constants.js';
 import { showToast, setActiveNav } from '../utils.js';
 import { renderDraftsListView } from './drafts.js';
@@ -147,6 +147,31 @@ export async function renderNewApplicationView(draftId = null) {
           </div>
         </div>
 
+        <!-- ── Account Credentials ── -->
+        <div class="form-card">
+          <div class="form-section-label">Account Credentials <span class="badge-optional" style="text-transform:none;letter-spacing:0;">optional</span></div>
+          <div class="form-grid">
+
+            <div class="form-group">
+              <label class="form-label" for="app_username">Username</label>
+              <input id="app_username" name="app_username" type="text" class="form-input" placeholder="e.g. johndoe" value="${app.app_username || ''}" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="app_password">Password</label>
+              <div style="display:flex;gap:0.5rem;">
+                <div style="position:relative;flex:1;">
+                  <input id="app_password" name="app_password" type="password" class="form-input" placeholder="Enter or generate" value="${app.app_password || ''}" style="padding-right:2.5rem;" />
+                  <button type="button" id="btn-toggle-pw" title="Show/Hide" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:1rem;padding:0;">👁</button>
+                </div>
+                <button type="button" id="btn-gen-pw" class="btn btn-secondary" style="white-space:nowrap;font-size:0.8rem;">Generate</button>
+              </div>
+              <div class="form-helper">Optional login credentials for the job posting site.</div>
+            </div>
+
+          </div>
+        </div>
+
         <!-- ── Tracking ── -->
         <div class="form-card">
           <div class="form-section-label">Tracking</div>
@@ -221,6 +246,26 @@ export async function renderNewApplicationView(draftId = null) {
       return !!hasText || statusChanged || typeChanged || priorityChanged;
     }
   }
+
+  // Password show/hide toggle
+  document.getElementById('btn-toggle-pw').addEventListener('click', () => {
+    const pwInput = document.getElementById('app_password');
+    pwInput.type = pwInput.type === 'password' ? 'text' : 'password';
+  });
+
+  // Generate password
+  document.getElementById('btn-gen-pw').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-gen-pw');
+    btn.disabled = true;
+    btn.textContent = '...';
+    const pw = await generatePassword();
+    if (pw) {
+      document.getElementById('app_password').value = pw;
+      document.getElementById('app_password').type = 'text';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Generate';
+  });
 
   // Back / Cancel
   const goBack = () => {
@@ -311,6 +356,8 @@ async function handleSaveDraft(draftId) {
     resume_used: val('resume_used') || null,
     priority_score: parseInt(get('priority_score').value, 10),
     notes: val('notes') || null,
+    app_username: val('app_username') || null,
+    app_password: val('app_password') || null,
   };
 
   // Date validation: posting_date cannot be in the future
@@ -404,6 +451,8 @@ async function handleFormSubmit(draftId) {
     resume_used: val('resume_used') || null,
     priority_score: parseInt(get('priority_score').value, 10),
     notes: val('notes') || null,
+    app_username: val('app_username') || null,
+    app_password: val('app_password') || null,
   };
 
   const submitBtn = document.getElementById('btn-submit');

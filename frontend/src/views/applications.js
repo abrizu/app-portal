@@ -1,4 +1,4 @@
-import { fetchApplications, fetchApplication, updateApplication, deleteApplication, fetchResumes } from '../api.js';
+import { fetchApplications, fetchApplication, updateApplication, deleteApplication, fetchResumes, generatePassword, downloadResume } from '../api.js';
 import { STATUS_OPTIONS_GENERAL, JOB_TYPE_OPTIONS, SALARY_PRESETS, SOURCE_OPTIONS } from '../constants.js';
 import { showToast, setActiveNav, getStatusColor, getUniqueLocations } from '../utils.js';
 import { renderNewApplicationView } from './newApplication.js';
@@ -322,7 +322,7 @@ async function openDetailPanel(id) {
         ${field('Application Date', app.application_date)}
         ${field('Posting Date', app.posting_date)}
         ${field('Source', app.source)}
-        ${field('Resume Used', app.resume_used)}
+        ${field('Resume Used', app.resume_used ? `<a href="#" class="resume-link" data-filename="${app.resume_used}" style="color:var(--accent-primary);text-decoration:none;">${app.resume_used}</a>` : null)}
         ${field('Priority Score', app.priority_score != null ? `${app.priority_score} / 10` : null)}
         ${field('Attainability Score', app.attainability_score != null ? `${app.attainability_score} / 10` : null)}
       </div>
@@ -330,6 +330,22 @@ async function openDetailPanel(id) {
       ${field('Technologies', app.technologies)}
       <div style="margin-top:1rem;">${field('Posting URL', urlField)}</div>
       <div style="margin-top:1rem;">${field('Notes', app.notes)}</div>
+
+      ${(app.app_username || app.app_password) ? `
+      <div style="margin-top:1.5rem; padding-top:1rem; border-top: 1px solid var(--border-color);">
+        <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent-primary);margin-bottom:1rem;">Account Credentials</div>
+        <div class="detail-grid">
+          ${field('Username', app.app_username)}
+          <div>
+            <div class="detail-field-label">Password</div>
+            <div class="detail-field-value" style="display:flex;align-items:center;gap:0.5rem;">
+              <span id="detail-pw-display" style="font-family:monospace;">${app.app_password ? '•'.repeat(app.app_password.length) : '—'}</span>
+              ${app.app_password ? '<button type="button" id="detail-pw-toggle" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:0.9rem;padding:0;">👁</button>' : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+      ` : ''}
 
       <div class="detail-actions">
         <button class="btn" id="detail-edit-btn">Edit</button>
@@ -351,6 +367,43 @@ async function openDetailPanel(id) {
   overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
   overlay.querySelector('#detail-edit-btn').addEventListener('click', () => { close(); renderEditApplicationView(id); });
   overlay.querySelector('#detail-delete-btn').addEventListener('click', () => { close(); showDeleteConfirm(id); });
+
+  // Password reveal toggle in detail panel
+  const pwToggle = overlay.querySelector('#detail-pw-toggle');
+  if (pwToggle && app.app_password) {
+    let revealed = false;
+    pwToggle.addEventListener('click', () => {
+      const display = overlay.querySelector('#detail-pw-display');
+      revealed = !revealed;
+      display.textContent = revealed ? app.app_password : '•'.repeat(app.app_password.length);
+    });
+  }
+
+  // Resume link click handler
+  const resumeLinks = overlay.querySelectorAll('.resume-link');
+  resumeLinks.forEach(link => {
+    link.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const filename = link.dataset.filename;
+      if (!filename) return;
+      
+      const oldText = link.textContent;
+      link.textContent = 'Opening...';
+      link.style.pointerEvents = 'none';
+      
+      const blob = await downloadResume(filename);
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      } else {
+        showToast('Failed to download resume.', 'error');
+      }
+      
+      link.textContent = oldText;
+      link.style.pointerEvents = 'auto';
+    });
+  });
 }
 
 function showDeleteConfirm(id) {
@@ -535,6 +588,26 @@ async function renderEditApplicationView(id) {
           </div>
         </div>
 
+        <div class="form-card">
+          <div class="form-section-label">Account Credentials <span class="badge-optional" style="text-transform:none;letter-spacing:0;">optional</span></div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="app_username">Username</label>
+              <input id="app_username" name="app_username" type="text" class="form-input" placeholder="e.g. johndoe" value="${app.app_username || ''}" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="app_password">Password</label>
+              <div style="display:flex;gap:0.5rem;">
+                <div style="position:relative;flex:1;">
+                  <input id="app_password" name="app_password" type="password" class="form-input" placeholder="Enter or generate" value="${app.app_password || ''}" style="padding-right:2.5rem;" />
+                  <button type="button" id="btn-toggle-pw" title="Show/Hide" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:1rem;padding:0;">👁</button>
+                </div>
+                <button type="button" id="btn-gen-pw" class="btn btn-secondary" style="white-space:nowrap;font-size:0.8rem;">Generate</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="form-actions">
           <button type="button" id="btn-cancel" class="btn btn-secondary">Cancel</button>
           <button type="submit" id="btn-submit" class="btn-submit">Save Changes</button>
@@ -586,6 +659,26 @@ async function renderEditApplicationView(id) {
     e.preventDefault();
     await handleEditSubmit(id);
   });
+
+  // Password show/hide toggle
+  document.getElementById('btn-toggle-pw').addEventListener('click', () => {
+    const pwInput = document.getElementById('app_password');
+    pwInput.type = pwInput.type === 'password' ? 'text' : 'password';
+  });
+
+  // Generate password
+  document.getElementById('btn-gen-pw').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-gen-pw');
+    btn.disabled = true;
+    btn.textContent = '...';
+    const pw = await generatePassword();
+    if (pw) {
+      document.getElementById('app_password').value = pw;
+      document.getElementById('app_password').type = 'text';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Generate';
+  });
 }
 
 async function handleEditSubmit(id) {
@@ -624,6 +717,8 @@ async function handleEditSubmit(id) {
     resume_used: val('resume_used') || null,
     priority_score: parseInt(get('priority_score').value, 10),
     notes: val('notes') || null,
+    app_username: val('app_username') || null,
+    app_password: val('app_password') || null,
   };
 
   const submitBtn = document.getElementById('btn-submit');

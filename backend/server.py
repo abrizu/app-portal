@@ -1,4 +1,6 @@
 import sys
+import secrets
+import string
 import shutil
 from pathlib import Path
 import uvicorn
@@ -10,8 +12,9 @@ from pydantic import BaseModel
 # Ensure we can import from functions directory
 sys.path.append(str(Path(__file__).parent))
 
-from functions.core.db import get_connection
+from functions.core.db import get_connection, initialize_database
 from functions.auth import get_password_hash, verify_password, create_access_token, decode_access_token
+from fastapi.responses import FileResponse
 import os
 from datetime import date
 from functions.scoring.attainability import score_application
@@ -31,16 +34,23 @@ class ApplicationCreate(BaseModel):
     resume_used: str | None = None
     priority_score: int | None = None
     notes: str | None = None
+    app_username: str | None = None
+    app_password: str | None = None
 app = FastAPI(title="App Portal API", description="Backend API for Job Application Tracker")
 
 # Setup CORS for the Vite frontend (Phase 2 & 3)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], # In production, restrict this to the frontend URL
-    allow_credentials=True,
+    allow_credentials=False,  # Must be False when allow_origins=["*"] (CORS spec)
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+def on_startup():
+    """Ensure all DB tables exist before handling any requests."""
+    initialize_database()
 
 @app.get("/api/health")
 def health_check():
@@ -98,6 +108,19 @@ def login(user: UserLogin):
     access_token = create_access_token(data={"sub": db_user['username']})
     return {"access_token": access_token, "token_type": "bearer"}
 
+_PW_ALPHABET = string.ascii_letters + string.digits + "!@#$%^&*()-_=+[]{}|;:,.<>?"
+
+@app.get("/api/generate-password")
+def generate_password():
+    """Return a random 16-char password with guaranteed complexity."""
+    while True:
+        pw = "".join(secrets.choice(_PW_ALPHABET) for _ in range(16))
+        if (any(c in string.ascii_uppercase for c in pw) and
+            any(c in string.ascii_lowercase for c in pw) and
+            any(c in string.digits for c in pw) and
+            any(c not in string.ascii_letters + string.digits for c in pw)):
+            return {"password": pw}
+
 @app.post("/api/resumes/upload")
 def upload_resume(file: UploadFile = File(...), user: str = Depends(get_current_user)):
     resumes_dir = Path(__file__).parent / "resumes"
@@ -131,6 +154,14 @@ def delete_resume_endpoint(filename: str, user: str = Depends(get_current_user))
     conn.commit()
     conn.close()
     return {"success": True}
+
+@app.get("/api/resumes/download/{filename}")
+def download_resume(filename: str, user: str = Depends(get_current_user)):
+    resumes_dir = Path(__file__).parent / "resumes"
+    file_path = resumes_dir / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Resume not found")
+    return FileResponse(file_path, media_type="application/pdf", filename=filename)
 
 from fastapi import APIRouter
 protected_router = APIRouter(dependencies=[Depends(get_current_user)])
@@ -175,12 +206,13 @@ def create_application(app_in: ApplicationCreate):
             INSERT INTO applications
                 (job_title, company_name, posting_date, application_date, status,
                  technologies, posting_url, location, job_type, salary_range, source, resume_used,
-                 priority_score, notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 priority_score, notes, app_username, app_password)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             app_in.job_title, app_in.company_name, app_in.posting_date, app_date, app_in.status,
             app_in.technologies, app_in.posting_url, app_in.location, app_in.job_type,
             app_in.salary_range, app_in.source, app_in.resume_used, app_in.priority_score, app_in.notes,
+            app_in.app_username, app_in.app_password,
         ))
         new_id = cur.lastrowid
         conn.commit()
@@ -233,6 +265,8 @@ class ApplicationUpdate(BaseModel):
     resume_used: str | None = None
     priority_score: int | None = None
     notes: str | None = None
+    app_username: str | None = None
+    app_password: str | None = None
 
 @protected_router.put("/api/applications/{app_id}")
 def update_application(app_id: int, app_in: ApplicationUpdate):
@@ -240,8 +274,8 @@ def update_application(app_id: int, app_in: ApplicationUpdate):
     try:
         conn = get_connection()
         cur = conn.cursor()
-        # Only update fields that are provided
-        update_data = {k: v for k, v in app_in.model_dump().items() if v is not None}
+        # Update fields that were explicitly provided in the request
+        update_data = app_in.model_dump(exclude_unset=True)
         if not update_data:
             raise HTTPException(status_code=400, detail="No fields to update")
 
@@ -305,6 +339,8 @@ class ApplicationDraft(BaseModel):
     resume_used: str | None = None
     priority_score: int | None = None
     notes: str | None = None
+    app_username: str | None = None
+    app_password: str | None = None
 
 @protected_router.get("/api/drafts")
 def get_drafts():
@@ -328,12 +364,13 @@ def create_draft(draft_in: ApplicationDraft):
             INSERT INTO drafts
                 (job_title, company_name, posting_date, application_date, status,
                  technologies, posting_url, location, job_type, salary_range, source, resume_used,
-                 priority_score, notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 priority_score, notes, app_username, app_password)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             draft_in.job_title, draft_in.company_name, draft_in.posting_date, draft_in.application_date, draft_in.status,
             draft_in.technologies, draft_in.posting_url, draft_in.location, draft_in.job_type,
             draft_in.salary_range, draft_in.source, draft_in.resume_used, draft_in.priority_score, draft_in.notes,
+            draft_in.app_username, draft_in.app_password,
         ))
         new_id = cur.lastrowid
         conn.commit()
@@ -364,7 +401,7 @@ def update_draft(draft_id: int, draft_in: ApplicationDraft):
     try:
         conn = get_connection()
         cur = conn.cursor()
-        update_data = {k: v for k, v in draft_in.model_dump().items() if v is not None}
+        update_data = draft_in.model_dump(exclude_unset=True)
         if not update_data:
             raise HTTPException(status_code=400, detail="No fields to update")
 
