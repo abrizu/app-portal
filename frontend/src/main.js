@@ -19,7 +19,6 @@ async function init() {
       <nav style="display: flex; flex-direction: column; gap: 0.5rem; height: 100%;">
         <a href="#" id="nav-dashboard" class="nav-link active">Dashboard</a>
         <a href="#" id="nav-applications" class="nav-link">Applications</a>
-        <a href="#" class="nav-link">Users</a>
         <a href="#" class="nav-link">Stats</a>
         <div style="flex-grow: 1;"></div>
         <a href="#" id="nav-settings" class="nav-link">Settings</a>

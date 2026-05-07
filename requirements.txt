@@ -3,7 +3,7 @@ tabulate
 pyyaml
 plotext
 pypdf
-bcrypt
+bcrypt==4.0.1
 fastapi
 uvicorn
 

@@ -1,4 +1,4 @@
-import { fetchResumes, uploadResume, deleteResume } from '../api.js';
+import { fetchResumes, uploadResume, deleteResume, downloadResume } from '../api.js';
 
 export async function renderSettingsView() {
     const mainContent = document.getElementById('main-content');

@@ -100,6 +100,20 @@ def initialize_database():
             ADD COLUMN attainability_score INTEGER CHECK (attainability_score BETWEEN 1 AND 10);
         """)
 
+    if "app_username" not in existing_cols:
+        cur.execute("ALTER TABLE applications ADD COLUMN app_username TEXT;")
+    if "app_password" not in existing_cols:
+        cur.execute("ALTER TABLE applications ADD COLUMN app_password TEXT;")
+
+    # ── Migration: add credential columns to drafts if missing ──
+    cur.execute("PRAGMA table_info(drafts);")
+    drafts_cols = {row["name"] for row in cur.fetchall()}
+
+    if "app_username" not in drafts_cols:
+        cur.execute("ALTER TABLE drafts ADD COLUMN app_username TEXT;")
+    if "app_password" not in drafts_cols:
+        cur.execute("ALTER TABLE drafts ADD COLUMN app_password TEXT;")
+
     conn.commit()
     cur.close()
     conn.close()

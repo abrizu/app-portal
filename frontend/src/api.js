@@ -5,6 +5,22 @@ function getAuthHeaders() {
     return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
 
+/** Clear stale token and force the login screen on any 401. */
+function handleUnauthorized() {
+    localStorage.removeItem('auth_token');
+    window.location.reload();
+}
+
+/** Shared fetch wrapper that automatically handles 401. */
+async function apiFetch(url, options = {}) {
+    const response = await fetch(url, options);
+    if (response.status === 401) {
+        handleUnauthorized();
+        return null; // execution stops after reload, but satisfy linter
+    }
+    return response;
+}
+
 /*------------------------------- Auth -------------------------------*/
 
 export async function checkAuth() {
@@ -52,11 +68,11 @@ export async function login(username, password) {
 // batch fetching
 export async function fetchApplications() {
     try {
-        const response = await fetch(`${API_URL}/applications`, {
+        const response = await apiFetch(`${API_URL}/applications`, {
             headers: getAuthHeaders()
         });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response || !response.ok) {
+            throw new Error(`HTTP error! status: ${response?.status}`);
         }
         const data = await response.json();
         return data.applications || [];
@@ -135,10 +151,10 @@ export async function deleteApplication(id) {
 
 export async function fetchDrafts() {
     try {
-        const response = await fetch(`${API_URL}/drafts`, {
+        const response = await apiFetch(`${API_URL}/drafts`, {
             headers: getAuthHeaders()
         });
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response || !response.ok) throw new Error(`HTTP error! status: ${response?.status}`);
         const data = await response.json();
         return data.drafts || [];
     } catch (error) {
@@ -247,5 +263,34 @@ export async function deleteResume(id) {
     } catch (error) {
         console.error("Could not delete resume:", error);
         return { success: false, error: error.message };
+    }
+}
+
+export async function downloadResume(filename) {
+    try {
+        const response = await fetch(`${API_URL}/resumes/download/${filename}`, {
+            headers: getAuthHeaders()
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.blob();
+    } catch (error) {
+        console.error("Could not download resume:", error);
+        return null;
+    }
+}
+
+/*------------------------------- Password Generation -------------------------------*/
+
+export async function generatePassword() {
+    try {
+        const response = await fetch(`${API_URL}/generate-password`, {
+            headers: getAuthHeaders()
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        return data.password || '';
+    } catch (error) {
+        console.error("Could not generate password:", error);
+        return '';
     }
 }
