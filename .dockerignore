@@ -1,0 +1,28 @@
+# Ignore Python artifacts
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.venv
+venv
+ENV
+
+# Ignore Node.js artifacts
+**/node_modules
+**/dist
+.npm
+
+# Ignore local database and uploads (we will handle these via volumes)
+backend/app_portal.db
+backend/uploads/*
+
+# Ignore OS files and IDE settings
+.DS_Store
+.vscode
+.idea
+.git
+.gitignore
+
+# Ignore Docker files themselves (not strictly necessary but cleaner)
+Dockerfile
+docker-compose.yml

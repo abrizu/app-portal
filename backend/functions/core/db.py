@@ -16,10 +16,10 @@ def get_connection():
 def initialize_database():
     """
     Create all tables if they don't already exist.
-    
-    Tables:
-        - applications: Core table tracking every job application.
     """
+    # Ensure the parent directory exists
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    
     conn = get_connection()
     cur = conn.cursor()
 

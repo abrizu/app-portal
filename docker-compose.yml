@@ -1,0 +1,25 @@
+services:
+  # The FastAPI Backend
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Map the local database and resumes folders to the container
+      # This ensures data persists even if the container is recreated
+      - ./backend/databases:/app/databases
+      - ./backend/resumes:/app/resumes
+    restart: always
+
+  # The Vite Frontend
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    environment:
+      # Tell the frontend where the backend is located
+      # Since the browser makes the requests, 'localhost' refers to your machine
+      - VITE_API_BASE_URL=http://localhost:8000
+    depends_on:
+      - backend
+    restart: always
