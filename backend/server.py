@@ -173,7 +173,7 @@ def get_applications():
     try:
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute("SELECT * FROM applications ORDER BY company_name ASC")
+        cur.execute("SELECT * FROM applications ORDER BY application_date DESC, id DESC")
         # Convert sqlite3.Row to standard dict for JSON serialization
         apps = [dict(row) for row in cur.fetchall()]
         conn.close()

@@ -50,7 +50,7 @@ export function getRecentAppsTableHtml(apps) {
     return `<p style="color: var(--text-secondary);">No applications yet. Click <strong>+ New Application</strong> to get started!</p>`;
   }
 
-  const rows = apps.slice(0, 10).map(a => `
+  const rows = apps.slice(0, 5).map(a => `
     <tr class="table-row">
       <td style="padding: 1rem; font-weight: 500;">${a.company_name || 'N/A'}</td>
       <td style="padding: 1rem; color: var(--text-secondary);">${a.job_title || 'N/A'}</td>

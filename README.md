@@ -57,7 +57,7 @@ If you prefer to run it locally on Windows:
 ## Usage Modes (In Progress)
 
 ### Frontend Web App (Primary)
-Access the current UI at `http://localhost:5173`. (Official deployment in development, will soon be hosted as a webpage.)
+Access the current UI at `http://localhost:5173`.
 - **First Run**: If no users exist, you will be prompted to create an Admin account.
 - **Secure Login**: Session-based auth with automatic timeout/invalidation handling.
 

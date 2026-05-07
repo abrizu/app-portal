@@ -1,6 +1,47 @@
 import { STATUS_OPTIONS_GENERAL, JOB_TYPE_OPTIONS, SALARY_PRESETS, SOURCE_OPTIONS } from '../../constants.js';
 import { getStatusColor } from '../../utils.js';
 
+const _TECH_CATS = [
+  {
+    items: ['Python', 'Java', 'JavaScript', 'TypeScript', 'C', 'C++', 'C#', 'Go',
+      'Golang', 'Rust', 'Ruby', 'PHP',
+      'Swift', 'Kotlin', 'Scala',
+      'R', 'MATLAB', 'Julia',
+      'Perl', 'Bash', 'Shell',
+      'SQL', 'NoSQL', 'HTML',
+      'CSS', 'Sass', 'Less'], color: { bg: 'rgba(59,130,246,0.18)', border: 'rgba(59,130,246,0.45)', text: '#93c5fd' }
+  },
+
+  {
+    items: ['React', 'Angular', 'Vue', 'Next.js', 'Node.js', 'Express', 'Django', 'Flask',
+      'FastAPI', 'Spring', 'Spring Boot', '.NET', 'ASP.NET', 'Rails', 'Laravel', 'Svelte',
+      'Nuxt', 'Pandas', 'NumPy', 'SciPy', 'scikit-learn', 'TensorFlow', 'PyTorch', 'Keras',
+      'OpenCV', 'PySpark', 'Spark', 'Hadoop', 'Airflow'],
+    color: { bg: 'rgba(139,92,246,0.18)', border: 'rgba(139,92,246,0.45)', text: '#c4b5fd' }
+  },
+
+  {
+    items: ['AWS', 'Azure', 'GCP', 'Google Cloud', 'Docker', 'Kubernetes', 'K8s', 'Terraform',
+      'Ansible', 'Jenkins', 'CI/CD', 'Git', 'GitHub', 'GitLab', 'Linux', 'Unix'],
+    color: { bg: 'rgba(16,185,129,0.18)', border: 'rgba(16,185,129,0.45)', text: '#6ee7b7' }
+  },
+
+  { items: ['PostgreSQL', 'MySQL', 'SQLite', 'MongoDB', 'Redis', 'Elasticsearch', 'DynamoDB', 'BigQuery', 'Snowflake', 'Databricks', 'Tableau', 'Power BI', 'Looker'], color: { bg: 'rgba(245,158,11,0.18)', border: 'rgba(245,158,11,0.45)', text: '#fcd34d' } },
+  { items: ['Machine Learning', 'Deep Learning', 'NLP', 'Natural Language Processing', 'Computer Vision', 'AI', 'AI/ML', 'LLM', 'Generative AI', 'Data Science', 'Data Engineering', 'Data Analysis'], color: { bg: 'rgba(236,72,153,0.18)', border: 'rgba(236,72,153,0.45)', text: '#f9a8d4' } },
+  { items: ['REST', 'RESTful', 'GraphQL', 'API', 'Microservices', 'Agile', 'Scrum', 'Jira'], color: { bg: 'rgba(6,182,212,0.18)', border: 'rgba(6,182,212,0.45)', text: '#67e8f9' } },
+];
+const _CUSTOM_COLOR = { bg: 'rgba(156,163,175,0.15)', border: 'rgba(156,163,175,0.4)', text: '#d1d5db' };
+function _techColor(label) {
+  const k = label.toLowerCase();
+  const cat = _TECH_CATS.find(c => c.items.some(i => i.toLowerCase() === k));
+  return cat ? cat.color : _CUSTOM_COLOR;
+}
+function _categoryIndexOf(label) {
+  const k = label.toLowerCase();
+  const idx = _TECH_CATS.findIndex(cat => cat.items.some(i => i.toLowerCase() === k));
+  return idx === -1 ? 9999 : idx;
+}
+
 export function getApplicationsLayout() {
   return `
     <div class="page-enter">
@@ -141,7 +182,22 @@ export function getDetailPanelHtml(app) {
         ${field('Attainability Score', app.attainability_score != null ? `${app.attainability_score} / 10` : null)}
       </div>
 
-      ${field('Technologies', app.technologies)}
+      <div style="margin-top:1rem;">
+        <div class="detail-field-label">Technologies</div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.4rem;">
+          ${app.technologies
+      ? app.technologies.split(',').map(t => t.trim()).filter(Boolean)
+          .sort((a, b) => {
+            const ia = _categoryIndexOf(a), ib = _categoryIndexOf(b);
+            return ia !== ib ? ia - ib : a.localeCompare(b);
+          })
+          .map(t => {
+            const c = _techColor(t);
+            return `<span style="display:inline-flex;align-items:center;padding:0.22rem 0.6rem;border-radius:999px;border:1px solid ${c.border};background:${c.bg};color:${c.text};font-size:0.78rem;font-weight:500;">${t}</span>`;
+          }).join('')
+      : '<span style="color:var(--text-secondary);">—</span>'}
+        </div>
+      </div>
       <div style="margin-top:1rem;">${field('Posting URL', urlField)}</div>
       <div style="margin-top:1rem;">${field('Notes', app.notes)}</div>
 
@@ -222,8 +278,8 @@ export function getEditApplicationLayout(app, salaryIsPreset, sourceIsPreset) {
             </div>
             <div class="form-group">
               <label class="form-label" for="technologies">Technologies</label>
-              <input id="technologies" name="technologies" type="text" class="form-input" value="${app.technologies || ''}" />
-            </div>
+              <input id="technologies" name="technologies" type="text" value="${app.technologies || ''}" />
+              </div>
           </div>
         </div>
 

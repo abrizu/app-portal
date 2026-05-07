@@ -4,6 +4,7 @@ import { showToast, setActiveNav } from '../../utils.js';
 import { renderDraftsListView } from '../drafts.js';
 import { renderDashboardView } from '../dashboard/dashboard.js';
 import { getNewApplicationLayout } from './template.js';
+import { initTechTagInput } from '../../techTagInput.js';
 
 export async function renderNewApplicationView(draftId = null) {
   setActiveNav(null); 
@@ -22,6 +23,9 @@ export async function renderNewApplicationView(draftId = null) {
   const sourceIsPreset = app.source ? SOURCE_OPTIONS.includes(app.source) : true;
 
   mainContent.innerHTML = getNewApplicationLayout(draftId, app, today, salaryIsPreset, sourceIsPreset);
+
+  // Upgrade the Technologies field to the tag autocomplete widget
+  initTechTagInput('technologies');
 
   function isNewAppFormDirty() {
     const val = (id) => document.getElementById(id)?.value.trim() || '';
