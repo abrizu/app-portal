@@ -1,5 +1,5 @@
 import { login, register, checkAuth } from '../api.js';
-import { renderDashboardView } from './dashboard.js';
+import { renderDashboardView } from './dashboard/dashboard.js';
 import { setActiveNav } from '../utils.js';
 
 export async function renderLoginView(containerId = 'app') {

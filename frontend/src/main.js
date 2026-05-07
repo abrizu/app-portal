@@ -1,7 +1,7 @@
 import './style.css';
 import { setActiveNav } from './utils.js';
-import { renderDashboardView } from './views/dashboard.js';
-import { renderApplicationsListView } from './views/applications.js';
+import { renderDashboardView } from './views/dashboard/dashboard.js';
+import { renderApplicationsListView } from './views/applications/applications.js';
 import { renderSettingsView } from './views/settings.js';
 import { renderLoginView } from './views/login.js';
 

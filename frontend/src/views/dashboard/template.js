@@ -1,12 +1,7 @@
-import { fetchApplications } from '../api.js';
-import { setActiveNav, getStatusColor } from '../utils.js';
-import { renderNewApplicationView } from './newApplication.js';
+import { getStatusColor } from '../../utils.js';
 
-export async function renderDashboardView() {
-  const mainContent = document.querySelector('.main-content');
-  if (!mainContent) return;
-
-  mainContent.innerHTML = `
+export function getDashboardLayout() {
+  return `
     <div class="page-enter">
       <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
         <h1>Dashboard</h1>
@@ -27,23 +22,10 @@ export async function renderDashboardView() {
       </div>
     </div>
   `;
-
-  document.getElementById('btn-new-app').addEventListener('click', () => {
-    setActiveNav(null);
-    renderNewApplicationView();
-  });
-
-  const apps = await fetchApplications();
-  populateDashboardData(apps);
 }
 
-function populateDashboardData(apps) {
-  const total = apps.length;
-  const interviewing = apps.filter(a => a.status === 'Interviewing' || a.status === 'Technical').length;
-  const offers = apps.filter(a => a.status === 'Offer').length;
-  const rejected = apps.filter(a => a.status === 'Rejected').length;
-
-  document.getElementById('stats-container').innerHTML = `
+export function getStatsHtml(total, interviewing, offers, rejected) {
+  return `
     <div class="glass-card" style="padding: 1.5rem;">
       <h3 style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Total Applications</h3>
       <p style="font-size: 2.5rem; font-weight: 700;">${total}</p>
@@ -61,11 +43,11 @@ function populateDashboardData(apps) {
       <p style="font-size: 2.5rem; font-weight: 700; color: var(--status-rejected);">${rejected}</p>
     </div>
   `;
+}
 
+export function getRecentAppsTableHtml(apps) {
   if (apps.length === 0) {
-    document.getElementById('applications-table-container').innerHTML =
-      `<p style="color: var(--text-secondary);">No applications yet. Click <strong>+ New Application</strong> to get started!</p>`;
-    return;
+    return `<p style="color: var(--text-secondary);">No applications yet. Click <strong>+ New Application</strong> to get started!</p>`;
   }
 
   const rows = apps.slice(0, 10).map(a => `
@@ -82,7 +64,7 @@ function populateDashboardData(apps) {
     </tr>
   `).join('');
 
-  document.getElementById('applications-table-container').innerHTML = `
+  return `
     <style>
       .table-row { border-bottom: 1px solid var(--border-color); transition: background-color 0.2s; }
       .table-row:last-child { border-bottom: none; }
