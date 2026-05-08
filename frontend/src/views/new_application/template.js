@@ -1,6 +1,6 @@
 import { JOB_TYPE_OPTIONS, STATUS_OPTIONS, SALARY_PRESETS, SOURCE_OPTIONS } from '../../constants.js';
 
-export function getNewApplicationLayout(draftId, app, today, salaryIsPreset, sourceIsPreset) {
+export function getNewApplicationLayout(draftId, app, today, salaryIsPreset, salaryIsHourly, sourceIsPreset) {
   return `
     <div class="form-page page-enter">
       <div class="form-page-header">
@@ -73,17 +73,32 @@ export function getNewApplicationLayout(draftId, app, today, salaryIsPreset, sou
               <div class="pill-toggle" id="salary-toggle">
                 <input type="radio" id="salary-preset" name="salary_mode" value="preset" ${salaryIsPreset ? 'checked' : ''}>
                 <label for="salary-preset">Preset Range</label>
-                <input type="radio" id="salary-custom" name="salary_mode" value="custom" ${!salaryIsPreset ? 'checked' : ''}>
+                <input type="radio" id="salary-hourly" name="salary_mode" value="hourly" ${salaryIsHourly ? 'checked' : ''}>
+                <label for="salary-hourly">Hourly</label>
+                <input type="radio" id="salary-custom" name="salary_mode" value="custom" ${(!salaryIsPreset && !salaryIsHourly) ? 'checked' : ''}>
                 <label for="salary-custom">Custom / Other</label>
               </div>
-              <div id="salary-preset-wrap" style="${!salaryIsPreset ? 'display:none;' : ''}">
+              <div id="salary-preset-wrap" style="${(!salaryIsPreset || salaryIsHourly) ? 'display:none;' : ''}">
                 <select id="salary_range_select" class="form-select">
                   <option value="">— Select a range —</option>
                   ${SALARY_PRESETS.map(s => `<option value="${s}"${s === app.salary_range ? ' selected' : ''}>${s}</option>`).join('')}
                 </select>
               </div>
-              <div id="salary-custom-wrap" style="${!salaryIsPreset ? '' : 'display:none;'}">
-                <input id="salary_range_custom" type="text" class="form-input" placeholder="e.g. $55,000 – $65,000 or Competitive" value="${!salaryIsPreset ? (app.salary_range || '') : ''}" />
+              <div id="salary-hourly-wrap" style="${salaryIsHourly ? '' : 'display:none;'}">
+                <div style="display:flex;gap:0.75rem;align-items:center;">
+                  <div style="flex:1;">
+                    <label class="form-label" style="margin-bottom:0.3rem;display:block;">Min Rate ($/hr)</label>
+                    <input id="hourly_min" type="number" min="0" step="0.01" class="form-input" placeholder="e.g. 18" value="${salaryIsHourly ? (app._hourly_min || '') : ''}" />
+                  </div>
+                  <div style="padding-top:1.4rem;color:var(--text-secondary);">—</div>
+                  <div style="flex:1;">
+                    <label class="form-label" style="margin-bottom:0.3rem;display:block;">Max Rate ($/hr) <span style="font-weight:400;opacity:0.6;">optional</span></label>
+                    <input id="hourly_max" type="number" min="0" step="0.01" class="form-input" placeholder="e.g. 25" value="${salaryIsHourly ? (app._hourly_max || '') : ''}" />
+                  </div>
+                </div>
+              </div>
+              <div id="salary-custom-wrap" style="${(!salaryIsPreset && !salaryIsHourly) ? '' : 'display:none;'}">
+                <input id="salary_range_custom" type="text" class="form-input" placeholder="e.g. $55,000 – $65,000 or Competitive" value="${(!salaryIsPreset && !salaryIsHourly) ? (app.salary_range || '') : ''}" />
               </div>
             </div>
             <div class="form-group span-2">

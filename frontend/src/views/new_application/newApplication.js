@@ -20,9 +20,12 @@ export async function renderNewApplicationView(draftId = null) {
   const today = new Date().toISOString().split('T')[0];
 
   const salaryIsPreset = app.salary_range ? SALARY_PRESETS.includes(app.salary_range) : true;
+  const _hourlyMatch = app.salary_range ? app.salary_range.match(/^\$(\d+(?:\.\d+)?)(?:\s*[–-]\s*\$(\d+(?:\.\d+)?))?\s*\/hr$/) : null;
+  const salaryIsHourly = !!_hourlyMatch;
+  if (_hourlyMatch) { app._hourly_min = _hourlyMatch[1]; app._hourly_max = _hourlyMatch[2] || ''; }
   const sourceIsPreset = app.source ? SOURCE_OPTIONS.includes(app.source) : true;
 
-  mainContent.innerHTML = getNewApplicationLayout(draftId, app, today, salaryIsPreset, sourceIsPreset);
+  mainContent.innerHTML = getNewApplicationLayout(draftId, app, today, salaryIsPreset, salaryIsHourly, sourceIsPreset);
 
   // Upgrade the Technologies field to the tag autocomplete widget
   initTechTagInput('technologies');
@@ -114,9 +117,10 @@ export async function renderNewApplicationView(draftId = null) {
 
   document.querySelectorAll('input[name="salary_mode"]').forEach(r => {
     r.addEventListener('change', () => {
-      const isCustom = r.value === 'custom';
-      document.getElementById('salary-preset-wrap').style.display = isCustom ? 'none' : '';
-      document.getElementById('salary-custom-wrap').style.display = isCustom ? '' : 'none';
+      const v = r.value;
+      document.getElementById('salary-preset-wrap').style.display = v === 'preset' ? '' : 'none';
+      document.getElementById('salary-hourly-wrap').style.display = v === 'hourly' ? '' : 'none';
+      document.getElementById('salary-custom-wrap').style.display = v === 'custom' ? '' : 'none';
     });
   });
 
@@ -143,7 +147,10 @@ async function handleSaveDraft(draftId) {
   const val = (id) => get(id)?.value.trim();
 
   const salaryMode = document.querySelector('input[name="salary_mode"]:checked')?.value;
-  const salary_range = salaryMode === 'custom' ? val('salary_range_custom') || null : val('salary_range_select') || null;
+  const salary_range = salaryMode === 'hourly'
+    ? (() => { const mn = val('hourly_min'); const mx = val('hourly_max'); return mn ? (mx ? `$${mn}\u2013$${mx}/hr` : `$${mn}/hr`) : null; })()
+    : salaryMode === 'custom' ? val('salary_range_custom') || null
+    : val('salary_range_select') || null;
 
   const sourceMode = document.querySelector('input[name="source_mode"]:checked')?.value;
   const source = sourceMode === 'custom' ? val('source_custom') || null : val('source_select') || null;
@@ -229,7 +236,9 @@ async function handleFormSubmit(draftId) {
   }
 
   const salaryMode = document.querySelector('input[name="salary_mode"]:checked')?.value;
-  const salary_range = salaryMode === 'custom'
+  const salary_range = salaryMode === 'hourly'
+    ? (() => { const mn = val('hourly_min'); const mx = val('hourly_max'); return mn ? (mx ? `$${mn}\u2013$${mx}/hr` : `$${mn}/hr`) : null; })()
+    : salaryMode === 'custom'
     ? val('salary_range_custom') || null
     : val('salary_range_select') || null;
 

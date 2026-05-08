@@ -4,13 +4,13 @@ import { showToast, setActiveNav, getUniqueLocations } from '../../utils.js';
 import { renderNewApplicationView } from '../new_application/newApplication.js';
 import { renderDraftsListView } from '../drafts.js';
 import { initTechTagInput } from '../../techTagInput.js';
-import { 
-  getApplicationsLayout, 
-  getAppTableHtml, 
-  getQuickStatusModalHtml, 
-  getDetailPanelHtml, 
-  getDeleteConfirmHtml, 
-  getEditApplicationLayout 
+import {
+  getApplicationsLayout,
+  getAppTableHtml,
+  getQuickStatusModalHtml,
+  getDetailPanelHtml,
+  getDeleteConfirmHtml,
+  getEditApplicationLayout
 } from './template.js';
 
 let _appCache = [];
@@ -77,8 +77,9 @@ function populateLocationFilter(apps) {
   const sel = document.getElementById('filter-location');
   if (!sel) return;
   const locs = getUniqueLocations(apps);
+  const truncate = (str, max = 40) => str.length > max ? str.slice(0, max).trimEnd() + '…' : str;
   sel.innerHTML = `<option value="">All Locations</option>` +
-    locs.map(l => `<option value="${l}">${l}</option>`).join('');
+    locs.map(l => `<option value="${l}">${truncate(l)}</option>`).join('');
 }
 
 function renderAppTable() {
@@ -299,9 +300,12 @@ async function renderEditApplicationView(id) {
 
   const resumesPromise = fetchResumes();
   const salaryIsPreset = SALARY_PRESETS.includes(app.salary_range);
+  const _hourlyMatch = app.salary_range ? app.salary_range.match(/^\$(\d+(?:\.\d+)?)(?:\s*[–-]\s*\$(\d+(?:\.\d+)?))?\s*\/hr$/) : null;
+  const salaryIsHourly = !!_hourlyMatch;
+  if (_hourlyMatch) { app._hourly_min = _hourlyMatch[1]; app._hourly_max = _hourlyMatch[2] || ''; }
   const sourceIsPreset = SOURCE_OPTIONS.includes(app.source);
 
-  mainContent.innerHTML = getEditApplicationLayout(app, salaryIsPreset, sourceIsPreset);
+  mainContent.innerHTML = getEditApplicationLayout(app, salaryIsPreset, salaryIsHourly, sourceIsPreset);
 
   // Upgrade the Technologies field to the tag autocomplete widget
   initTechTagInput('technologies');
@@ -327,9 +331,10 @@ async function renderEditApplicationView(id) {
 
   document.querySelectorAll('input[name="salary_mode"]').forEach(r => {
     r.addEventListener('change', () => {
-      const isCustom = r.value === 'custom';
-      document.getElementById('salary-preset-wrap').style.display = isCustom ? 'none' : '';
-      document.getElementById('salary-custom-wrap').style.display = isCustom ? '' : 'none';
+      const v = r.value;
+      document.getElementById('salary-preset-wrap').style.display = v === 'preset' ? '' : 'none';
+      document.getElementById('salary-hourly-wrap').style.display = v === 'hourly' ? '' : 'none';
+      document.getElementById('salary-custom-wrap').style.display = v === 'custom' ? '' : 'none';
     });
   });
 
@@ -387,7 +392,9 @@ async function handleEditSubmit(id) {
   }
 
   const salaryMode = document.querySelector('input[name="salary_mode"]:checked')?.value;
-  const salary_range = salaryMode === 'custom' ? val('salary_range_custom') || null : val('salary_range_select') || null;
+  const salary_range = salaryMode === 'hourly'
+    ? (() => { const mn = val('hourly_min'); const mx = val('hourly_max'); return mn ? (mx ? `$${mn}\u2013$${mx}/hr` : `$${mn}/hr`) : null; })()
+    : salaryMode === 'custom' ? val('salary_range_custom') || null : val('salary_range_select') || null;
   const sourceMode = document.querySelector('input[name="source_mode"]:checked')?.value;
   const source = sourceMode === 'custom' ? val('source_custom') || null : val('source_select') || null;
 
