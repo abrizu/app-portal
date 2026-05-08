@@ -3,6 +3,7 @@ import { SALARY_PRESETS, SOURCE_OPTIONS } from '../../constants.js';
 import { showToast, setActiveNav, getUniqueLocations } from '../../utils.js';
 import { renderNewApplicationView } from '../new_application/newApplication.js';
 import { renderDraftsListView } from '../drafts.js';
+import { initTechTagInput } from '../../techTagInput.js';
 import { 
   getApplicationsLayout, 
   getAppTableHtml, 
@@ -301,6 +302,9 @@ async function renderEditApplicationView(id) {
   const sourceIsPreset = SOURCE_OPTIONS.includes(app.source);
 
   mainContent.innerHTML = getEditApplicationLayout(app, salaryIsPreset, sourceIsPreset);
+
+  // Upgrade the Technologies field to the tag autocomplete widget
+  initTechTagInput('technologies');
 
   const goBack = () => { setActiveNav('nav-applications'); renderApplicationsListView(); };
   document.getElementById('btn-back').addEventListener('click', goBack);

@@ -15,6 +15,13 @@ export async function renderDashboardView() {
   });
 
   const apps = await fetchApplications();
+  // Sort by application_date DESC, then id DESC to ensure "Recent" is accurate
+  apps.sort((a, b) => {
+    const da = a.application_date || '';
+    const db = b.application_date || '';
+    if (da !== db) return db.localeCompare(da);
+    return (b.id || 0) - (a.id || 0);
+  });
   populateDashboardData(apps);
 }
 

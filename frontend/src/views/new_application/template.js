@@ -39,7 +39,8 @@ export function getNewApplicationLayout(draftId, app, today, salaryIsPreset, sou
             </div>
             <div class="form-group">
               <label class="form-label" for="technologies">Technologies</label>
-              <input id="technologies" name="technologies" type="text" class="form-input" placeholder="e.g. Python, React, SQL" value="${app.technologies || ''}" />
+              <input id="technologies" name="technologies" type="text" value="${app.technologies || ''}" />
+              <div class="form-helper">Start typing to search — press <kbd style="font-size:0.7rem;padding:1px 5px;border:1px solid var(--border-color);border-radius:4px;background:rgba(255,255,255,0.06);">Enter</kbd> or <kbd style="font-size:0.7rem;padding:1px 5px;border:1px solid var(--border-color);border-radius:4px;background:rgba(255,255,255,0.06);">,</kbd> to add. Unknown techs are accepted too.</div>
             </div>
           </div>
         </div>
