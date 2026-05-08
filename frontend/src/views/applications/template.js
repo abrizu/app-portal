@@ -56,12 +56,12 @@ export function getApplicationsLayout() {
 
       <div class="app-toolbar">
         <input id="app-search" type="text" class="search-input" placeholder="Search by keyword, tech, company…" />
+        <select id="filter-location" class="filter-select">
+          <option value="">All Locations</option>
+        </select>
         <select id="filter-status" class="filter-select">
           <option value="">All Statuses</option>
           ${STATUS_OPTIONS_GENERAL.map(s => `<option value="${s}">${s}</option>`).join('')}
-        </select>
-        <select id="filter-location" class="filter-select">
-          <option value="">All Locations</option>
         </select>
         <select id="filter-type" class="filter-select">
           <option value="">All Types</option>
@@ -187,14 +187,14 @@ export function getDetailPanelHtml(app) {
         <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.4rem;">
           ${app.technologies
       ? app.technologies.split(',').map(t => t.trim()).filter(Boolean)
-          .sort((a, b) => {
-            const ia = _categoryIndexOf(a), ib = _categoryIndexOf(b);
-            return ia !== ib ? ia - ib : a.localeCompare(b);
-          })
-          .map(t => {
-            const c = _techColor(t);
-            return `<span style="display:inline-flex;align-items:center;padding:0.22rem 0.6rem;border-radius:999px;border:1px solid ${c.border};background:${c.bg};color:${c.text};font-size:0.78rem;font-weight:500;">${t}</span>`;
-          }).join('')
+        .sort((a, b) => {
+          const ia = _categoryIndexOf(a), ib = _categoryIndexOf(b);
+          return ia !== ib ? ia - ib : a.localeCompare(b);
+        })
+        .map(t => {
+          const c = _techColor(t);
+          return `<span style="display:inline-flex;align-items:center;padding:0.22rem 0.6rem;border-radius:999px;border:1px solid ${c.border};background:${c.bg};color:${c.text};font-size:0.78rem;font-weight:500;">${t}</span>`;
+        }).join('')
       : '<span style="color:var(--text-secondary);">—</span>'}
         </div>
       </div>
@@ -238,7 +238,7 @@ export function getDeleteConfirmHtml(name) {
   `;
 }
 
-export function getEditApplicationLayout(app, salaryIsPreset, sourceIsPreset) {
+export function getEditApplicationLayout(app, salaryIsPreset, salaryIsHourly, sourceIsPreset) {
   return `
     <div class="form-page page-enter">
       <div class="form-page-header">
@@ -311,17 +311,32 @@ export function getEditApplicationLayout(app, salaryIsPreset, sourceIsPreset) {
               <div class="pill-toggle" id="salary-toggle">
                 <input type="radio" id="salary-preset" name="salary_mode" value="preset" ${salaryIsPreset || !app.salary_range ? 'checked' : ''}>
                 <label for="salary-preset">Preset Range</label>
-                <input type="radio" id="salary-custom" name="salary_mode" value="custom" ${!salaryIsPreset && app.salary_range ? 'checked' : ''}>
+                <input type="radio" id="salary-hourly" name="salary_mode" value="hourly" ${salaryIsHourly ? 'checked' : ''}>
+                <label for="salary-hourly">Hourly</label>
+                <input type="radio" id="salary-custom" name="salary_mode" value="custom" ${(!salaryIsPreset && !salaryIsHourly && app.salary_range) ? 'checked' : ''}>
                 <label for="salary-custom">Custom / Other</label>
               </div>
-              <div id="salary-preset-wrap" style="${!salaryIsPreset && app.salary_range ? 'display:none;' : ''}">
+              <div id="salary-preset-wrap" style="${(!salaryIsPreset || salaryIsHourly) && app.salary_range ? 'display:none;' : ''}">
                 <select id="salary_range_select" class="form-select">
                   <option value="">— Select a range —</option>
                   ${SALARY_PRESETS.map(s => `<option value="${s}"${s === app.salary_range ? ' selected' : ''}>${s}</option>`).join('')}
                 </select>
               </div>
-              <div id="salary-custom-wrap" style="${!salaryIsPreset && app.salary_range ? '' : 'display:none;'}">
-                <input id="salary_range_custom" type="text" class="form-input" value="${!salaryIsPreset ? (app.salary_range || '') : ''}" />
+              <div id="salary-hourly-wrap" style="${salaryIsHourly ? '' : 'display:none;'}">
+                <div style="display:flex;gap:0.75rem;align-items:center;">
+                  <div style="flex:1;">
+                    <label class="form-label" style="margin-bottom:0.3rem;display:block;">Min Rate ($/hr)</label>
+                    <input id="hourly_min" type="number" min="0" step="0.01" class="form-input" placeholder="e.g. 18" value="${salaryIsHourly ? (app._hourly_min || '') : ''}" />
+                  </div>
+                  <div style="padding-top:1.4rem;color:var(--text-secondary);">—</div>
+                  <div style="flex:1;">
+                    <label class="form-label" style="margin-bottom:0.3rem;display:block;">Max Rate ($/hr) <span style="font-weight:400;opacity:0.6;">optional</span></label>
+                    <input id="hourly_max" type="number" min="0" step="0.01" class="form-input" placeholder="e.g. 25" value="${salaryIsHourly ? (app._hourly_max || '') : ''}" />
+                  </div>
+                </div>
+              </div>
+              <div id="salary-custom-wrap" style="${!salaryIsPreset && !salaryIsHourly && app.salary_range ? '' : 'display:none;'}">
+                <input id="salary_range_custom" type="text" class="form-input" value="${(!salaryIsPreset && !salaryIsHourly) ? (app.salary_range || '') : ''}" />
               </div>
             </div>
             <div class="form-group span-2">

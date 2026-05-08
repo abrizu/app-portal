@@ -131,6 +131,11 @@ h6 {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
 .main-content {
@@ -327,6 +332,13 @@ h6 {
 .form-input::placeholder,
 .form-textarea::placeholder {
   color: rgba(156, 163, 175, 0.5);
+}
+
+/* Remove number input spin buttons */
+.form-input[type="number"]::-webkit-inner-spin-button,
+.form-input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .form-input:focus,
@@ -604,7 +616,16 @@ h6 {
   outline: none;
   cursor: pointer;
   min-width: 130px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   transition: border-color 0.2s;
+}
+
+#filter-location {
+  width: 360px;
+  max-width: 360px;
 }
 
 .filter-select:focus {
