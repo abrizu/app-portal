@@ -7,7 +7,7 @@ import { getNewApplicationLayout } from './template.js';
 import { initTechTagInput } from '../../techTagInput.js';
 
 export async function renderNewApplicationView(draftId = null) {
-  setActiveNav(null); 
+  setActiveNav(null);
   const mainContent = document.querySelector('.main-content');
   if (!mainContent) return;
 
@@ -147,10 +147,19 @@ async function handleSaveDraft(draftId) {
   const val = (id) => get(id)?.value.trim();
 
   const salaryMode = document.querySelector('input[name="salary_mode"]:checked')?.value;
+  if (salaryMode === 'hourly') {
+    const mn = parseFloat(val('hourly_min'));
+    const mx = parseFloat(val('hourly_max'));
+    if (val('hourly_max') && !isNaN(mn) && !isNaN(mx) && mx < mn) {
+      get('hourly_max').classList.add('error');
+      showToast('Max rate cannot be less than the min rate.', 'error');
+      return;
+    }
+  }
   const salary_range = salaryMode === 'hourly'
-    ? (() => { const mn = val('hourly_min'); const mx = val('hourly_max'); return mn ? (mx ? `$${mn}\u2013$${mx}/hr` : `$${mn}/hr`) : null; })()
+    ? (() => { const mn = val('hourly_min'); const mx = val('hourly_max'); const mxf = parseFloat(mx); const mnf = parseFloat(mn); return mn ? (mx && mxf !== mnf ? `$${mn}\u2013$${mx}/hr` : `$${mn}/hr`) : null; })()
     : salaryMode === 'custom' ? val('salary_range_custom') || null
-    : val('salary_range_select') || null;
+      : val('salary_range_select') || null;
 
   const sourceMode = document.querySelector('input[name="source_mode"]:checked')?.value;
   const source = sourceMode === 'custom' ? val('source_custom') || null : val('source_select') || null;
@@ -236,11 +245,20 @@ async function handleFormSubmit(draftId) {
   }
 
   const salaryMode = document.querySelector('input[name="salary_mode"]:checked')?.value;
+  if (salaryMode === 'hourly') {
+    const mn = parseFloat(val('hourly_min'));
+    const mx = parseFloat(val('hourly_max'));
+    if (val('hourly_max') && !isNaN(mn) && !isNaN(mx) && mx < mn) {
+      get('hourly_max').classList.add('error');
+      showToast('Max rate cannot be less than the min rate.', 'error');
+      return;
+    }
+  }
   const salary_range = salaryMode === 'hourly'
-    ? (() => { const mn = val('hourly_min'); const mx = val('hourly_max'); return mn ? (mx ? `$${mn}\u2013$${mx}/hr` : `$${mn}/hr`) : null; })()
+    ? (() => { const mn = val('hourly_min'); const mx = val('hourly_max'); const mxf = parseFloat(mx); const mnf = parseFloat(mn); return mn ? (mx && mxf !== mnf ? `$${mn}\u2013$${mx}/hr` : `$${mn}/hr`) : null; })()
     : salaryMode === 'custom'
-    ? val('salary_range_custom') || null
-    : val('salary_range_select') || null;
+      ? val('salary_range_custom') || null
+      : val('salary_range_select') || null;
 
   const sourceMode = document.querySelector('input[name="source_mode"]:checked')?.value;
   const source = sourceMode === 'custom'
