@@ -346,6 +346,19 @@ async function renderEditApplicationView(id) {
     });
   });
 
+  // Work type pill toggle — update label highlight on selection
+  document.querySelectorAll('input[name="work_type"]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.querySelectorAll('input[name="work_type"]').forEach(other => {
+        const lbl = other.closest('label');
+        const selected = other.checked;
+        lbl.style.background = selected ? 'var(--accent-primary)' : 'rgba(255,255,255,0.04)';
+        lbl.style.color = selected ? '#fff' : 'var(--text-secondary)';
+        lbl.style.borderColor = selected ? 'var(--accent-primary)' : 'var(--border-color)';
+      });
+    });
+  });
+
   document.getElementById('edit-app-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     await handleEditSubmit(id);
@@ -412,6 +425,7 @@ async function handleEditSubmit(id) {
     posting_date: val('posting_date') || null, application_date: val('application_date') || null,
     status: val('status'), technologies: val('technologies') || null,
     posting_url: val('posting_url') || null, location: val('location') || null,
+    work_type: document.querySelector('input[name="work_type"]:checked')?.value || null,
     job_type: val('job_type'), salary_range, source,
     resume_used: val('resume_used') || null,
     priority_score: parseInt(get('priority_score').value, 10),

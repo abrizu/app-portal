@@ -1,4 +1,4 @@
-import { STATUS_OPTIONS_GENERAL, JOB_TYPE_OPTIONS, SALARY_PRESETS, SOURCE_OPTIONS } from '../../constants.js';
+import { STATUS_OPTIONS_GENERAL, JOB_TYPE_OPTIONS, SALARY_PRESETS, SOURCE_OPTIONS, WORK_TYPE_OPTIONS } from '../../constants.js';
 import { getStatusColor } from '../../utils.js';
 
 const _TECH_CATS = [
@@ -265,6 +265,15 @@ export function getEditApplicationLayout(app, salaryIsPreset, salaryIsHourly, so
             <div class="form-group">
               <label class="form-label" for="location">Location</label>
               <input id="location" name="location" type="text" class="form-input" value="${app.location || ''}" />
+              <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+                <span style="font-size:0.78rem;color:var(--text-secondary);align-self:center;white-space:nowrap;">Work Type:</span>
+                ${WORK_TYPE_OPTIONS.map(t => `
+                  <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;cursor:pointer;padding:0.25rem 0.6rem;border-radius:6px;border:1px solid var(--border-color);background:${t === app.work_type ? 'var(--accent-primary)' : 'rgba(255,255,255,0.04)'};color:${t === app.work_type ? '#fff' : 'var(--text-secondary)'};transition:all 0.15s;">
+                    <input type="radio" name="work_type" value="${t}" ${t === app.work_type ? 'checked' : ''} style="display:none;" />
+                    ${t}
+                  </label>
+                `).join('')}
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label" for="job_type">Job Type</label>

@@ -13,6 +13,8 @@ export const JOB_TYPE_OPTIONS = [
   'Full-time', 'Part-time', 'Contract', 'Internship', 'Co-op', 'Freelance',
 ];
 
+export const WORK_TYPE_OPTIONS = ['Onsite', 'Hybrid', 'Remote'];
+
 export const SALARY_PRESETS = [
   'Not Disclosed',
   '$20,000 – $30,000',
