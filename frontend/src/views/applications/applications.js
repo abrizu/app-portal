@@ -351,15 +351,30 @@ async function renderEditApplicationView(id) {
   });
 
   // Work type pill toggle — update label highlight on selection
+  const updateWorkTypePills = () => {
+    document.querySelectorAll('input[name="work_type"]').forEach(other => {
+      const lbl = other.closest('label');
+      const selected = other.checked;
+      lbl.style.background = selected ? 'var(--accent-primary)' : 'rgba(255,255,255,0.04)';
+      lbl.style.color = selected ? '#fff' : 'var(--text-secondary)';
+      lbl.style.borderColor = selected ? 'var(--accent-primary)' : 'var(--border-color)';
+    });
+  };
+
   document.querySelectorAll('input[name="work_type"]').forEach(r => {
-    r.addEventListener('change', () => {
-      document.querySelectorAll('input[name="work_type"]').forEach(other => {
-        const lbl = other.closest('label');
-        const selected = other.checked;
-        lbl.style.background = selected ? 'var(--accent-primary)' : 'rgba(255,255,255,0.04)';
-        lbl.style.color = selected ? '#fff' : 'var(--text-secondary)';
-        lbl.style.borderColor = selected ? 'var(--accent-primary)' : 'var(--border-color)';
-      });
+    // Initialize state
+    if (r.checked) r.dataset.wasChecked = 'true';
+
+    r.addEventListener('click', () => {
+      if (r.dataset.wasChecked === 'true') {
+        r.checked = false;
+        r.dataset.wasChecked = 'false';
+      } else {
+        // Clear others
+        document.querySelectorAll('input[name="work_type"]').forEach(i => i.dataset.wasChecked = 'false');
+        r.dataset.wasChecked = 'true';
+      }
+      updateWorkTypePills();
     });
   });
 

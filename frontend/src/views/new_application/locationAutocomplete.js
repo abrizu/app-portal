@@ -89,7 +89,7 @@ export function initLocationAutocomplete(inputId) {
         new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
         '<mark>$1</mark>'
       );
-      
+
       html += `<div class="tech-tag-option location-option ${index === 0 ? 'highlighted' : ''}" data-index="${index}">
                  ${highlighted}
                </div>`;
@@ -133,7 +133,7 @@ export function initLocationAutocomplete(inputId) {
   textInput.addEventListener('input', () => {
     const q = textInput.value.trim();
     if (debounceTimeout) clearTimeout(debounceTimeout);
-    
+
     if (!q) {
       dropdown.style.display = 'none';
       return;
@@ -145,7 +145,7 @@ export function initLocationAutocomplete(inputId) {
   });
 
   textInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' || e.key === 'Tab') {
       if (dropdown.style.display === 'block') {
         e.preventDefault();
         const highlighted = dropdown.querySelector('.location-option.highlighted');
