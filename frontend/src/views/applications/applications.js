@@ -1,8 +1,8 @@
 import { fetchApplications, fetchApplication, updateApplication, deleteApplication, fetchResumes, generatePassword, downloadResume } from '../../api.js';
-import { SALARY_PRESETS, SOURCE_OPTIONS } from '../../constants.js';
+import { SALARY_PRESETS, SOURCE_OPTIONS } from '../new_application/constants.js';
 import { showToast, setActiveNav, getUniqueLocations } from '../../utils.js';
 import { renderNewApplicationView } from '../new_application/newApplication.js';
-import { renderDraftsListView } from '../drafts.js';
+import { renderDraftsListView } from '../new_application/drafts.js';
 import { initTechTagInput } from '../new_application/techTagInput.js';
 import {
   getApplicationsLayout,

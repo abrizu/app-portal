@@ -1,4 +1,4 @@
-import { JOB_TYPE_OPTIONS, STATUS_OPTIONS, SALARY_PRESETS, SOURCE_OPTIONS, WORK_TYPE_OPTIONS } from '../../constants.js';
+import { JOB_TYPE_OPTIONS, STATUS_OPTIONS, SALARY_PRESETS, SOURCE_OPTIONS, WORK_TYPE_OPTIONS } from './constants.js';
 
 export function getNewApplicationLayout(draftId, app, today, salaryIsPreset, salaryIsHourly, sourceIsPreset) {
   return `

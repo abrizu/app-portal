@@ -8,7 +8,10 @@ import { setActiveNav } from './utils.js';
 import { renderDashboardView } from './views/dashboard/dashboard.js';
 import { renderApplicationsListView } from './views/applications/applications.js';
 import { renderSettingsView } from './views/settings.js';
-import { renderLoginView } from './views/login.js';
+import { renderLoginView } from './views/auth/login.js';
+import { renderConnectionsView } from './views/connections/connections.js';
+import { renderStatsView } from './views/stats/stats.js'
+
 
 async function init() {
   const token = localStorage.getItem('auth_token');
@@ -24,7 +27,8 @@ async function init() {
       <nav style="display: flex; flex-direction: column; gap: 0.5rem; height: 100%;">
         <a href="#" id="nav-dashboard" class="nav-link active">Dashboard</a>
         <a href="#" id="nav-applications" class="nav-link">Applications</a>
-        <a href="#" class="nav-link">Stats</a>
+        <a href="#" id="nav-connections" class="nav-link">Connections</a>
+        <a href="#" id="nav-stats" class="nav-link">Stats</a>
         <div style="flex-grow: 1;"></div>
         <a href="#" id="nav-settings" class="nav-link">Settings</a>
       </nav>
@@ -32,18 +36,38 @@ async function init() {
     <main class="main-content" id="main-content"></main>
   `;
 
+  /* SIDE NAV */
+
+  // dashboard
   document.getElementById('nav-dashboard').addEventListener('click', (e) => {
     e.preventDefault();
     setActiveNav('nav-dashboard');
     renderDashboardView();
   });
 
+  // applications
   document.getElementById('nav-applications').addEventListener('click', (e) => {
     e.preventDefault();
     setActiveNav('nav-applications');
     renderApplicationsListView();
   });
 
+  // connections
+  document.getElementById('nav-connections').addEventListener('click', (e) => {
+    e.preventDefault();
+    setActiveNav('nav-connections');
+    renderConnectionsView();
+  });
+
+
+  // stats
+  document.getElementById('nav-stats').addEventListener('click', (e) => {
+    e.preventDefault();
+    setActiveNav('nav-stats');
+    renderStatsView();
+  });
+
+  // settings
   document.getElementById('nav-settings').addEventListener('click', (e) => {
     e.preventDefault();
     setActiveNav('nav-settings');

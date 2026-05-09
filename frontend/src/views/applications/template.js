@@ -1,4 +1,4 @@
-import { STATUS_OPTIONS_GENERAL, JOB_TYPE_OPTIONS, SALARY_PRESETS, SOURCE_OPTIONS, WORK_TYPE_OPTIONS } from '../../constants.js';
+import { STATUS_OPTIONS_GENERAL, JOB_TYPE_OPTIONS, SALARY_PRESETS, SOURCE_OPTIONS, WORK_TYPE_OPTIONS } from '../new_application/constants.js';
 import { getStatusColor } from '../../utils.js';
 
 const _TECH_CATS = [
