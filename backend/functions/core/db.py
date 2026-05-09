@@ -104,6 +104,8 @@ def initialize_database():
         cur.execute("ALTER TABLE applications ADD COLUMN app_username TEXT;")
     if "app_password" not in existing_cols:
         cur.execute("ALTER TABLE applications ADD COLUMN app_password TEXT;")
+    if "work_type" not in existing_cols:
+        cur.execute("ALTER TABLE applications ADD COLUMN work_type VARCHAR(20);")
 
     # ── Migration: add credential columns to drafts if missing ──
     cur.execute("PRAGMA table_info(drafts);")
@@ -113,6 +115,8 @@ def initialize_database():
         cur.execute("ALTER TABLE drafts ADD COLUMN app_username TEXT;")
     if "app_password" not in drafts_cols:
         cur.execute("ALTER TABLE drafts ADD COLUMN app_password TEXT;")
+    if "work_type" not in drafts_cols:
+        cur.execute("ALTER TABLE drafts ADD COLUMN work_type VARCHAR(20);")
 
     conn.commit()
     cur.close()

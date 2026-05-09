@@ -28,6 +28,7 @@ class ApplicationCreate(BaseModel):
     technologies: str | None = None
     posting_url: str | None = None
     location: str | None = None
+    work_type: str | None = None
     job_type: str = "Full-time"
     salary_range: str | None = None
     source: str | None = None
@@ -205,12 +206,12 @@ def create_application(app_in: ApplicationCreate):
         cur.execute("""
             INSERT INTO applications
                 (job_title, company_name, posting_date, application_date, status,
-                 technologies, posting_url, location, job_type, salary_range, source, resume_used,
+                 technologies, posting_url, location, work_type, job_type, salary_range, source, resume_used,
                  priority_score, notes, app_username, app_password)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             app_in.job_title, app_in.company_name, app_in.posting_date, app_date, app_in.status,
-            app_in.technologies, app_in.posting_url, app_in.location, app_in.job_type,
+            app_in.technologies, app_in.posting_url, app_in.location, app_in.work_type, app_in.job_type,
             app_in.salary_range, app_in.source, app_in.resume_used, app_in.priority_score, app_in.notes,
             app_in.app_username, app_in.app_password,
         ))
@@ -259,6 +260,7 @@ class ApplicationUpdate(BaseModel):
     technologies: str | None = None
     posting_url: str | None = None
     location: str | None = None
+    work_type: str | None = None
     job_type: str | None = None
     salary_range: str | None = None
     source: str | None = None
@@ -333,6 +335,7 @@ class ApplicationDraft(BaseModel):
     technologies: str | None = None
     posting_url: str | None = None
     location: str | None = None
+    work_type: str | None = None
     job_type: str | None = None
     salary_range: str | None = None
     source: str | None = None
@@ -363,12 +366,12 @@ def create_draft(draft_in: ApplicationDraft):
         cur.execute("""
             INSERT INTO drafts
                 (job_title, company_name, posting_date, application_date, status,
-                 technologies, posting_url, location, job_type, salary_range, source, resume_used,
+                 technologies, posting_url, location, work_type, job_type, salary_range, source, resume_used,
                  priority_score, notes, app_username, app_password)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             draft_in.job_title, draft_in.company_name, draft_in.posting_date, draft_in.application_date, draft_in.status,
-            draft_in.technologies, draft_in.posting_url, draft_in.location, draft_in.job_type,
+            draft_in.technologies, draft_in.posting_url, draft_in.location, draft_in.work_type, draft_in.job_type,
             draft_in.salary_range, draft_in.source, draft_in.resume_used, draft_in.priority_score, draft_in.notes,
             draft_in.app_username, draft_in.app_password,
         ))
