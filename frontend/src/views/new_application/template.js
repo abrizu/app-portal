@@ -25,7 +25,7 @@ export function getNewApplicationLayout(draftId, app, today, salaryIsPreset, sal
             </div>
             <div class="form-group">
               <label class="form-label" for="location">Location</label>
-              <input id="location" name="location" type="text" class="form-input" placeholder="e.g. New York, NY" value="${app.location || ''}" />
+              <input id="location" name="location" type="text" class="form-input" placeholder="e.g. New York, NY" value="${app.location || ''}" autocomplete="off" />
               <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
                 <span style="font-size:0.78rem;color:var(--text-secondary);align-self:center;white-space:nowrap;">Work Type:</span>
                 ${WORK_TYPE_OPTIONS.map(t => `

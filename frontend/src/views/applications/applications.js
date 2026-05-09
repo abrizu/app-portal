@@ -3,7 +3,7 @@ import { SALARY_PRESETS, SOURCE_OPTIONS } from '../../constants.js';
 import { showToast, setActiveNav, getUniqueLocations } from '../../utils.js';
 import { renderNewApplicationView } from '../new_application/newApplication.js';
 import { renderDraftsListView } from '../drafts.js';
-import { initTechTagInput } from '../../techTagInput.js';
+import { initTechTagInput } from '../new_application/techTagInput.js';
 import {
   getApplicationsLayout,
   getAppTableHtml,
@@ -12,6 +12,7 @@ import {
   getDeleteConfirmHtml,
   getEditApplicationLayout
 } from './template.js';
+import { initLocationAutocomplete } from '../new_application/locationAutocomplete.js';
 
 let _appCache = [];
 let _appSort = { col: 'application_date', dir: 'desc' };
@@ -309,6 +310,9 @@ async function renderEditApplicationView(id) {
 
   // Upgrade the Technologies field to the tag autocomplete widget
   initTechTagInput('technologies');
+
+  // Upgrade the Location field to the autocomplete widget
+  initLocationAutocomplete('location');
 
   const goBack = () => { setActiveNav('nav-applications'); renderApplicationsListView(); };
   document.getElementById('btn-back').addEventListener('click', goBack);

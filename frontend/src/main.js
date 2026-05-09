@@ -1,4 +1,9 @@
-import './style.css';
+import './css/base.css';
+import './css/layout.css';
+import './css/components.css';
+import './css/forms.css';
+import './css/applications.css';
+import './css/widgets.css';
 import { setActiveNav } from './utils.js';
 import { renderDashboardView } from './views/dashboard/dashboard.js';
 import { renderApplicationsListView } from './views/applications/applications.js';
