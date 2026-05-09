@@ -32,6 +32,7 @@ const TECH_CATEGORIES = [
       'Pandas', 'NumPy', 'SciPy', 'scikit-learn',
       'TensorFlow', 'PyTorch', 'Keras', 'OpenCV',
       'PySpark', 'Spark', 'Hadoop', 'Airflow',
+      'Firebase', 'Supabase', 'Supabase Postgres'
     ],
   },
   {
@@ -40,7 +41,7 @@ const TECH_CATEGORIES = [
     items: [
       'AWS', 'Azure', 'GCP', 'Google Cloud', 'Docker', 'Kubernetes', 'K8s',
       'Terraform', 'Ansible', 'Jenkins', 'CI/CD', 'Git', 'GitHub', 'GitLab',
-      'Linux', 'Unix',
+      'Linux', 'Unix', 'Cloudflare', 'Vercel',
     ],
   },
   {
@@ -49,7 +50,7 @@ const TECH_CATEGORIES = [
     items: [
       'PostgreSQL', 'MySQL', 'SQLite', 'MongoDB', 'Redis',
       'Elasticsearch', 'DynamoDB', 'BigQuery', 'Snowflake', 'Databricks',
-      'Tableau', 'Power BI', 'Looker',
+      'Tableau', 'Power BI', 'Looker', 'Pinecone', 'Milvus', 'FAISS', 'DuckDB',
     ],
   },
   {
@@ -58,7 +59,8 @@ const TECH_CATEGORIES = [
     items: [
       'Machine Learning', 'Deep Learning', 'NLP', 'Natural Language Processing',
       'Computer Vision', 'AI', 'AI/ML', 'LLM', 'Generative AI',
-      'Data Science', 'Data Engineering', 'Data Analysis',
+      'Data Science', 'Data Engineering', 'Data Analysis', 'Langchain', 'LangGraph',
+      'OpenAI', 'ChatGPT', 'Gemini', 'Claude', 'Openclaw',
     ],
   },
   {
@@ -66,7 +68,7 @@ const TECH_CATEGORIES = [
     color: { bg: 'rgba(6,182,212,0.18)', border: 'rgba(6,182,212,0.45)', text: '#67e8f9' },
     items: [
       'REST', 'RESTful', 'GraphQL', 'API', 'Microservices',
-      'Agile', 'Scrum', 'Jira',
+      'Agile', 'Scrum', 'Jira', 'Kafka', 'Stripe', 'Firebase Auth'
     ],
   },
 ];
@@ -193,7 +195,7 @@ export function initTechTagInput(inputId) {
   });
 
   textInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ',') {
+    if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab') {
       e.preventDefault();
       // Use the highlighted item (now auto-highlighted on render)
       const highlighted = dropdown.querySelector('.tech-tag-option.highlighted');

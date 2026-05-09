@@ -1,7 +1,7 @@
 import { fetchDraft, fetchResumes, createDraft, updateDraft, createApplication, deleteDraft, generatePassword } from '../../api.js';
-import { SALARY_PRESETS, SOURCE_OPTIONS } from '../../constants.js';
+import { SALARY_PRESETS, SOURCE_OPTIONS } from './constants.js';
 import { showToast, setActiveNav } from '../../utils.js';
-import { renderDraftsListView } from '../drafts.js';
+import { renderDraftsListView } from './drafts.js';
 import { renderDashboardView } from '../dashboard/dashboard.js';
 import { getNewApplicationLayout } from './template.js';
 import { initTechTagInput } from './techTagInput.js';

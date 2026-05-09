@@ -1,14 +1,16 @@
-import { login, register, checkAuth } from '../api.js';
-import { renderDashboardView } from './dashboard/dashboard.js';
-import { setActiveNav } from '../utils.js';
+import { login, register, checkAuth } from '../../api.js';
+// import { renderDashboardView } from '../dashboard/dashboard.js';
+// import { setActiveNav } from '../../utils.js';
+
+/* Handles the login Auth page. */
 
 export async function renderLoginView(containerId = 'app') {
     const appContainer = document.getElementById(containerId);
-    
+
     // Check if there are any users in the database
     const authStatus = await checkAuth();
     const isRegister = !authStatus.has_users;
-    
+
     appContainer.innerHTML = `
         <div style="display: flex; justify-content: center; alignItems: center; height: 100vh; width: 100vw; background: var(--bg-primary);">
             <div class="glass" style="width: 100%; max-width: 400px; margin: auto; padding: 2.5rem; border-radius: 1rem;">
@@ -42,7 +44,7 @@ export async function renderLoginView(containerId = 'app') {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const errorDiv = document.getElementById('auth-error');
-        
+
         try {
             if (isRegister) {
                 const res = await register(username, password);
