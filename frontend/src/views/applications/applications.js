@@ -10,12 +10,15 @@ import {
   getQuickStatusModalHtml,
   getDetailPanelHtml,
   getDeleteConfirmHtml,
-  getEditApplicationLayout
+  getEditApplicationLayout,
+  getPaginationHtml
 } from './template.js';
 import { initLocationAutocomplete } from '../new_application/locationAutocomplete.js';
 
 let _appCache = [];
 let _appSort = { col: 'application_date', dir: 'desc' };
+let _currentPage = 1;
+let _itemsPerPage = 10;
 
 function applyFiltersAndSort(apps, search, status, location, type) {
   let filtered = apps;
@@ -68,10 +71,10 @@ export async function renderApplicationsListView() {
   populateLocationFilter(_appCache);
   renderAppTable();
 
-  document.getElementById('app-search').addEventListener('input', () => renderAppTable());
-  document.getElementById('filter-status').addEventListener('change', () => renderAppTable());
-  document.getElementById('filter-location').addEventListener('change', () => renderAppTable());
-  document.getElementById('filter-type').addEventListener('change', () => renderAppTable());
+  document.getElementById('app-search').addEventListener('input', () => { _currentPage = 1; renderAppTable(); });
+  document.getElementById('filter-status').addEventListener('change', () => { _currentPage = 1; renderAppTable(); });
+  document.getElementById('filter-location').addEventListener('change', () => { _currentPage = 1; renderAppTable(); });
+  document.getElementById('filter-type').addEventListener('change', () => { _currentPage = 1; renderAppTable(); });
 }
 
 function populateLocationFilter(apps) {
@@ -91,12 +94,47 @@ function renderAppTable() {
   const apps = applyFiltersAndSort(_appCache, search, status, location, type);
   const wrap = document.getElementById('app-table-wrap');
   const countEl = document.getElementById('results-count');
+  const pagWrap = document.getElementById('pagination-wrap');
 
   if (countEl) countEl.textContent = `${apps.length} application${apps.length !== 1 ? 's' : ''} found`;
 
-  wrap.innerHTML = getAppTableHtml(apps, _appSort);
+  const totalPages = Math.ceil(apps.length / _itemsPerPage);
+  if (_currentPage > totalPages && totalPages > 0) _currentPage = totalPages;
+  if (_currentPage < 1) _currentPage = 1;
 
-  if (apps.length === 0) return;
+  const startIndex = (_currentPage - 1) * _itemsPerPage;
+  const endIndex = startIndex + _itemsPerPage;
+  const paginatedApps = apps.slice(startIndex, endIndex);
+
+  wrap.innerHTML = getAppTableHtml(paginatedApps, _appSort);
+  if (pagWrap) {
+    pagWrap.innerHTML = getPaginationHtml(_currentPage, totalPages, _itemsPerPage, apps.length);
+    
+    const itemsSelect = document.getElementById('items-per-page');
+    if (itemsSelect) {
+      itemsSelect.addEventListener('change', (e) => {
+        _itemsPerPage = parseInt(e.target.value, 10);
+        _currentPage = 1;
+        renderAppTable();
+      });
+    }
+
+    const btnPrev = document.getElementById('btn-prev-page');
+    if (btnPrev && !btnPrev.disabled) {
+      btnPrev.addEventListener('click', () => {
+        if (_currentPage > 1) { _currentPage--; renderAppTable(); }
+      });
+    }
+
+    const btnNext = document.getElementById('btn-next-page');
+    if (btnNext && !btnNext.disabled) {
+      btnNext.addEventListener('click', () => {
+        if (_currentPage < totalPages) { _currentPage++; renderAppTable(); }
+      });
+    }
+  }
+
+  if (paginatedApps.length === 0) return;
 
   // Sort headers
   wrap.querySelectorAll('.sortable').forEach(th => {
@@ -467,3 +505,26 @@ async function handleEditSubmit(id) {
     submitBtn.textContent = 'Save Changes';
   }
 }
+
+// Global keyboard shortcut for pagination
+document.addEventListener('keydown', (e) => {
+  const pagWrap = document.getElementById('pagination-wrap');
+  if (!pagWrap) return; // Only active when pagination is rendered
+
+  // Ignore if user is typing in an input, textarea, or select
+  const activeTag = document.activeElement?.tagName?.toLowerCase();
+  if (['input', 'textarea', 'select'].includes(activeTag)) return;
+
+  const btnPrev = document.getElementById('btn-prev-page');
+  const btnNext = document.getElementById('btn-next-page');
+
+  if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') {
+    if (btnPrev && !btnPrev.disabled) {
+      btnPrev.click();
+    }
+  } else if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') {
+    if (btnNext && !btnNext.disabled) {
+      btnNext.click();
+    }
+  }
+});

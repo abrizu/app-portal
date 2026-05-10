@@ -74,6 +74,33 @@ export function getApplicationsLayout() {
       <div id="app-table-wrap" class="glass-card-table" style="padding:1rem;overflow-x:auto;">
         <p style="color:var(--text-secondary);padding:2rem;text-align:center;animation:pulse 2s infinite;">Loading applications…</p>
       </div>
+      <div id="pagination-wrap" style="margin-top: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1.5rem;"></div>
+    </div>
+  `;
+}
+
+export function getPaginationHtml(currentPage, totalPages, itemsPerPage, totalItems) {
+  if (totalItems === 0) return '';
+
+  return `
+    <div style="display: flex; align-items: center; gap: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+      <span style="font-weight: 500;">Showing ${(currentPage - 1) * itemsPerPage + 1}-${Math.min(currentPage * itemsPerPage, totalItems)} of ${totalItems}</span>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span style="font-size: 0.8rem; color: var(--text-secondary);">Per page:</span>
+        <select id="items-per-page" class="form-select" style="padding: 0.25rem 1.75rem 0.25rem 0.75rem; font-size: 0.85rem; border-radius: 6px; width: auto; background-color: rgba(255, 255, 255, 0.03);">
+          <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+          <option value="25" ${itemsPerPage === 25 ? 'selected' : ''}>25</option>
+          <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+        </select>
+      </div>
+    </div>
+    
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <button id="btn-prev-page" class="btn btn-secondary" style="padding: 0.35rem 0.8rem; font-size: 0.85rem; border-radius: 6px;" ${currentPage <= 1 ? 'disabled style="opacity: 0.4; cursor: not-allowed;"' : ''}>Previous</button>
+      <span style="display: flex; align-items: center; padding: 0 0.5rem; font-size: 0.85rem; font-weight: 500; color: var(--text-primary);">
+        Page ${currentPage} of ${totalPages || 1}
+      </span>
+      <button id="btn-next-page" class="btn btn-secondary" style="padding: 0.35rem 0.8rem; font-size: 0.85rem; border-radius: 6px;" ${currentPage >= totalPages || totalPages === 0 ? 'disabled style="opacity: 0.4; cursor: not-allowed;"' : ''}>Next</button>
     </div>
   `;
 }
