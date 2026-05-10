@@ -1,7 +1,14 @@
-import { fetchResumes, uploadResume, deleteResume, downloadResume } from '../api.js';
+import { fetchResumes, uploadResume, deleteResume, downloadResume, fetchCurrentUser } from './api.js';
+import { renderProfileEditView } from './profileEdit.js';
 
 export async function renderSettingsView() {
     const mainContent = document.getElementById('main-content');
+
+    const user = await fetchCurrentUser();
+    const firstName = user?.first_name || '';
+    const lastName = user?.last_name || '';
+    const initials = (firstName.charAt(0) || user?.username?.charAt(0) || 'U').toUpperCase();
+    const displayName = firstName || lastName ? `${firstName} ${lastName}`.trim() : user?.username || 'User';
 
     mainContent.innerHTML = `
         <div class="page-enter">
@@ -11,18 +18,22 @@ export async function renderSettingsView() {
             
             <div style="display: grid; grid-template-columns: 1fr; gap: 2rem; max-width: 800px;">
             <!-- Profile Settings -->
-            <div class="glass" style="padding: 1.5rem; border-radius: 1rem;">
-                <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem;">Profile Settings</h2>
+            <div id="profile-settings-pill" class="glass" style="padding: 1.5rem; border-radius: 1rem; cursor: pointer; transition: all 0.2s ease;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="font-size: 1.25rem; font-weight: 600;">Profile Settings</h2>
+                    <svg style="width: 1.25rem; height: 1.25rem; color: var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                    </svg>
+                </div>
                 <div style="display: flex; align-items: center; gap: 1rem;">
                     <div style="width: 3rem; height: 3rem; border-radius: 50%; background: linear-gradient(to right, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.25rem;">
-                        A
+                        ${initials}
                     </div>
                     <div>
-                        <p style="font-weight: 500;">Admin User</p>
+                        <p style="font-weight: 500;">${displayName}</p>
                         <p style="font-size: 0.875rem; color: var(--text-secondary);">Manage your personal account</p>
                     </div>
                 </div>
-                <!-- Additional profile settings could go here in the future -->
             </div>
             
             <!-- Resume Management -->
@@ -58,6 +69,20 @@ export async function renderSettingsView() {
     document.getElementById('btn-logout').addEventListener('click', () => {
         localStorage.removeItem('auth_token');
         window.location.reload();
+    });
+
+    // Edit Profile Pill Click
+    const profilePill = document.getElementById('profile-settings-pill');
+    profilePill.addEventListener('click', () => {
+        renderProfileEditView();
+    });
+    profilePill.addEventListener('mouseover', () => {
+        profilePill.style.borderColor = '#3b82f6';
+        profilePill.style.background = 'rgba(59, 130, 246, 0.05)';
+    });
+    profilePill.addEventListener('mouseout', () => {
+        profilePill.style.borderColor = 'var(--border-color)';
+        profilePill.style.background = 'var(--glass-bg)';
     });
 
     // Upload zone logic

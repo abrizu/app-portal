@@ -64,6 +64,39 @@ export async function login(username, password) {
     }
 }
 
+export async function fetchCurrentUser() {
+    try {
+        const response = await apiFetch(`${API_URL}/users/me`, {
+            headers: getAuthHeaders()
+        });
+        if (!response || !response.ok) throw new Error(`HTTP error! status: ${response?.status}`);
+        const data = await response.json();
+        return data.user || null;
+    } catch (error) {
+        console.error("Could not fetch current user:", error);
+        return null;
+    }
+}
+
+export async function updateCurrentUser(userData) {
+    try {
+        const response = await fetch(`${API_URL}/users/me`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders()
+            },
+            body: JSON.stringify(userData)
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || 'Update failed');
+        return data;
+    } catch (error) {
+        console.error("Could not update current user:", error);
+        return { success: false, error: error.message };
+    }
+}
+
 /*------------------------------- Applications -------------------------------*/
 
 // batch fetching

@@ -167,6 +167,54 @@ def download_resume(filename: str, user: str = Depends(get_current_user)):
 from fastapi import APIRouter
 protected_router = APIRouter(dependencies=[Depends(get_current_user)])
 
+class UserUpdate(BaseModel):
+    first_name: str | None = None
+    last_name: str | None = None
+    home_location: str | None = None
+
+@protected_router.get("/api/users/me")
+def get_current_user_profile(username: str = Depends(get_current_user)):
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT id, username, first_name, last_name, home_location FROM users WHERE username = ?", (username,))
+        row = cur.fetchone()
+        conn.close()
+        if not row:
+            raise HTTPException(status_code=404, detail="User not found")
+        return {"success": True, "user": dict(row)}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@protected_router.put("/api/users/me")
+def update_current_user_profile(user_in: UserUpdate, username: str = Depends(get_current_user)):
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        
+        update_data = user_in.model_dump(exclude_unset=True)
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No fields to update")
+
+        set_clause = ", ".join(f"{k} = ?" for k in update_data.keys())
+        values = list(update_data.values()) + [username]
+        
+        cur.execute(f"UPDATE users SET {set_clause} WHERE username = ?", values)
+        conn.commit()
+        
+        if cur.rowcount == 0:
+            conn.close()
+            raise HTTPException(status_code=404, detail="User not found")
+            
+        conn.close()
+        return {"success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @protected_router.get("/api/applications")
 def get_applications():
