@@ -118,6 +118,17 @@ def initialize_database():
     if "work_type" not in drafts_cols:
         cur.execute("ALTER TABLE drafts ADD COLUMN work_type VARCHAR(20);")
 
+    # ── Migration: add profile columns to users if missing ──
+    cur.execute("PRAGMA table_info(users);")
+    users_cols = {row["name"] for row in cur.fetchall()}
+
+    if "first_name" not in users_cols:
+        cur.execute("ALTER TABLE users ADD COLUMN first_name VARCHAR(100);")
+    if "last_name" not in users_cols:
+        cur.execute("ALTER TABLE users ADD COLUMN last_name VARCHAR(100);")
+    if "home_location" not in users_cols:
+        cur.execute("ALTER TABLE users ADD COLUMN home_location VARCHAR(255);")
+
     conn.commit()
     cur.close()
     conn.close()
