@@ -28,8 +28,14 @@ function removeDropdownPortal() {
  */
 function formatLocation(item) {
   const parts = [item.name];
-  if (item.admin1) parts.push(item.admin1);
-  if (item.country_code || item.country) parts.push(item.country_code || item.country);
+  if (item.admin1 && item.admin1 !== item.name) {
+    parts.push(item.admin1);
+  }
+  if (item.country) {
+    parts.push(item.country);
+  } else if (item.country_code) {
+    parts.push(item.country_code);
+  }
   return parts.join(', ');
 }
 
@@ -84,14 +90,22 @@ export function initLocationAutocomplete(inputId) {
 
     let html = '';
     results.forEach((item, index) => {
-      const canonical = formatLocation(item);
-      const highlighted = escHtml(canonical).replace(
+      const primaryParts = [item.name];
+      if (item.admin1 && item.admin1 !== item.name) {
+        primaryParts.push(item.admin1);
+      }
+      const primaryText = primaryParts.join(', ');
+
+      const highlightedPrimary = escHtml(primaryText).replace(
         new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
         '<mark>$1</mark>'
       );
+      
+      const secondaryText = item.country || item.country_code || '';
 
-      html += `<div class="tech-tag-option location-option ${index === 0 ? 'highlighted' : ''}" data-index="${index}">
-                 ${highlighted}
+      html += `<div class="tech-tag-option location-option ${index === 0 ? 'highlighted' : ''}" data-index="${index}" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 0.5rem 0.75rem; line-height: 1.2;">
+                 <span style="font-weight: 500; font-size: 0.9rem;">${highlightedPrimary}</span>
+                 ${secondaryText ? `<span style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem;">${escHtml(secondaryText)}</span>` : ''}
                </div>`;
     });
 
