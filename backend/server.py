@@ -122,47 +122,71 @@ def generate_password():
             any(c not in string.ascii_letters + string.digits for c in pw)):
             return {"password": pw}
 
+from fastapi import Response
+import sqlite3
+
 @app.post("/api/resumes/upload")
 def upload_resume(file: UploadFile = File(...), user: str = Depends(get_current_user)):
-    resumes_dir = Path(__file__).parent / "resumes"
-    resumes_dir.mkdir(exist_ok=True)
-    file_path = resumes_dir / file.filename
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-        
-    try:
-        conn = get_connection()
-        cur = conn.cursor()
-        cur.execute("INSERT INTO resumes (filename) VALUES (?)", (file.filename,))
-        conn.commit()
+    file_content = file.file.read()
+    
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM users WHERE username = ?", (user,))
+    user_row = cur.fetchone()
+    if not user_row:
         conn.close()
-    except Exception as e:
-        # Ignore if already exists in db
-        pass
+        raise HTTPException(status_code=404, detail="User not found")
+    user_id = user_row["id"]
+    
+    try:
+        cur.execute("INSERT INTO resumes (user_id, filename, file_data) VALUES (?, ?, ?)", 
+                    (user_id, file.filename, file_content))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        # Overwrite if exists for the same user
+        cur.execute("UPDATE resumes SET file_data = ? WHERE filename = ? AND user_id = ?", 
+                    (file_content, file.filename, user_id))
+        conn.commit()
+    conn.close()
         
     return {"success": True, "filename": file.filename}
 
 @app.delete("/api/resumes/{filename}")
 def delete_resume_endpoint(filename: str, user: str = Depends(get_current_user)):
-    resumes_dir = Path(__file__).parent / "resumes"
-    file_path = resumes_dir / filename
-    if file_path.exists():
-        file_path.unlink()
-        
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("DELETE FROM resumes WHERE filename = ?", (filename,))
+    cur.execute("""
+        DELETE FROM resumes 
+        WHERE filename = ? AND user_id = (SELECT id FROM users WHERE username = ?)
+    """, (filename, user))
     conn.commit()
+    rowcount = cur.rowcount
     conn.close()
+    
+    if rowcount == 0:
+        raise HTTPException(status_code=404, detail="Resume not found")
+        
     return {"success": True}
 
 @app.get("/api/resumes/download/{filename}")
 def download_resume(filename: str, user: str = Depends(get_current_user)):
-    resumes_dir = Path(__file__).parent / "resumes"
-    file_path = resumes_dir / filename
-    if not file_path.exists():
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT r.file_data 
+        FROM resumes r
+        JOIN users u ON r.user_id = u.id
+        WHERE r.filename = ? AND u.username = ?
+    """, (filename, user))
+    row = cur.fetchone()
+    conn.close()
+    
+    if not row or not row["file_data"]:
         raise HTTPException(status_code=404, detail="Resume not found")
-    return FileResponse(file_path, media_type="application/pdf", filename=filename)
+        
+    return Response(content=row["file_data"], media_type="application/pdf", headers={
+        "Content-Disposition": f'inline; filename="{filename}"'
+    })
 
 from fastapi import APIRouter
 protected_router = APIRouter(dependencies=[Depends(get_current_user)])
@@ -231,17 +255,24 @@ def get_applications():
         raise HTTPException(status_code=500, detail=str(e))
 
 @protected_router.get("/api/resumes")
-def get_resumes():
+def get_resumes(username: str = Depends(get_current_user)):
     try:
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute("SELECT filename FROM resumes ORDER BY upload_date DESC")
+        cur.execute("""
+            SELECT r.filename 
+            FROM resumes r
+            JOIN users u ON r.user_id = u.id
+            WHERE u.username = ?
+            ORDER BY r.upload_date DESC
+        """, (username,))
         resumes = [row['filename'] for row in cur.fetchall()]
         conn.close()
         return {"resumes": resumes}
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return {"resumes": []}
-    return {"resumes": [f.name for f in resumes_dir.glob("*") if f.is_file() and f.name != ".gitkeep"]}
 
 @protected_router.post("/api/applications")
 def create_application(app_in: ApplicationCreate):

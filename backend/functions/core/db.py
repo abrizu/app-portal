@@ -78,11 +78,13 @@ def initialize_database():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS resumes (
             id              INTEGER PRIMARY KEY AUTOINCREMENT,
-            filename        VARCHAR(255) UNIQUE NOT NULL,
-            upload_date     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            user_id         INTEGER,
+            filename        VARCHAR(255) NOT NULL,
+            file_data       BLOB,
+            upload_date     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, filename)
         );
     """)
-
 
     # ── Migration: add priority / attainability columns if missing ──
     cur.execute("PRAGMA table_info(applications);")
@@ -128,6 +130,33 @@ def initialize_database():
         cur.execute("ALTER TABLE users ADD COLUMN last_name VARCHAR(100);")
     if "home_location" not in users_cols:
         cur.execute("ALTER TABLE users ADD COLUMN home_location VARCHAR(255);")
+
+    # ── Migration: add user_id and file_data to resumes if missing ──
+    cur.execute("PRAGMA table_info(resumes);")
+    resumes_cols = {row["name"] for row in cur.fetchall()}
+
+    if "user_id" not in resumes_cols:
+        cur.execute("ALTER TABLE resumes ADD COLUMN user_id INTEGER;")
+    if "file_data" not in resumes_cols:
+        cur.execute("ALTER TABLE resumes ADD COLUMN file_data BLOB;")
+
+    # ── Migrate existing resumes from folder to DB ──
+    resumes_dir = DB_PATH.parent.parent / "resumes"
+    if resumes_dir.exists():
+        cur.execute("SELECT id, filename FROM resumes WHERE file_data IS NULL")
+        for row in cur.fetchall():
+            file_path = resumes_dir / row["filename"]
+            if file_path.exists():
+                with open(file_path, "rb") as f:
+                    file_data = f.read()
+                cur.execute("UPDATE resumes SET file_data = ? WHERE id = ?", (file_data, row["id"]))
+
+    # Also assign existing resumes to the first user if user_id is null
+    cur.execute("SELECT id FROM users LIMIT 1")
+    user_row = cur.fetchone()
+    if user_row:
+        default_user_id = user_row["id"]
+        cur.execute("UPDATE resumes SET user_id = ? WHERE user_id IS NULL", (default_user_id,))
 
     conn.commit()
     cur.close()
