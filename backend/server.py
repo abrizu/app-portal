@@ -521,6 +521,46 @@ def delete_draft(draft_id: int):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# ──────────────────── Email AI Endpoints ────────────────────────
+
+class EmailParseRequest(BaseModel):
+    body: str
+
+@protected_router.post("/api/email/parse")
+def parse_email_body(req: EmailParseRequest):
+    """
+    Classify a single email body provided as plain text.
+    Does NOT write anything to the database — returns the AI/regex result only.
+    Use this for manual paste-and-preview.
+    """
+    try:
+        from functions.email.email_syncer import parse_single_email
+        result = parse_single_email(req.body)
+        return {"success": True, "result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@protected_router.post("/api/email/sync")
+def sync_email_inbox():
+    """
+    Connect to the configured IMAP inbox, scan recent emails,
+    classify them, and save CONFIRMATION emails as drafts.
+    Requires EMAIL_IMAP_HOST, EMAIL_ADDRESS, EMAIL_PASSWORD in .env.
+    """
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+        from functions.email.email_syncer import sync_emails
+        summary = sync_emails()
+        return {"success": True, "summary": summary}
+    except EnvironmentError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 app.include_router(protected_router)
 
 if __name__ == "__main__":

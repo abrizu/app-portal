@@ -27,11 +27,11 @@ export function getDashboardLayout() {
 export function getStatsHtml(total, interviewing, offers, rejected) {
   return `
     <div class="glass-card" style="padding: 1.5rem;">
-      <h3 style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Total Applications</h3>
+      <h3 style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Active Applications</h3>
       <p style="font-size: 2.5rem; font-weight: 700;">${total}</p>
     </div>
     <div class="glass-card" style="padding: 1.5rem;">
-      <h3 style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Active Interviews</h3>
+      <h3 style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;"></h3>
       <p style="font-size: 2.5rem; font-weight: 700; color: var(--status-interviewing);">${interviewing}</p>
     </div>
     <div class="glass-card" style="padding: 1.5rem;">

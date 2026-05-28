@@ -328,3 +328,35 @@ export async function generatePassword() {
         return '';
     }
 }
+
+/*------------------------------- Email AI -------------------------------*/
+
+export async function syncEmails() {
+    try {
+        const response = await apiFetch(`${API_URL}/email/sync`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+        });
+        if (!response || !response.ok) throw new Error(`HTTP error! status: ${response?.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Could not sync emails:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function parseEmail(bodyText) {
+    try {
+        const response = await apiFetch(`${API_URL}/email/parse`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+            body: JSON.stringify({ body: bodyText }),
+        });
+        if (!response || !response.ok) throw new Error(`HTTP error! status: ${response?.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Could not parse email:', error);
+        return { success: false, error: error.message };
+    }
+}
+

@@ -10,3 +10,10 @@ uvicorn
 PyJWT
 python-multipart
 passlib[bcrypt]
+
+# ── Email AI (optional – requires ENABLE_AI=true) ──
+# Install CPU-only torch to keep image small (~500 MB vs ~5 GB GPU)
+# torch --index-url https://download.pytorch.org/whl/cpu
+transformers
+scikit-learn
+python-dotenv

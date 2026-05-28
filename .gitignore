@@ -12,3 +12,8 @@ backend/databases/*
 
 __pycache__/
 functions/__pycache__/
+
+# email
+backend/functions/email
+# backend/functions/email/model/
+# backend/functions/email/training_data.json

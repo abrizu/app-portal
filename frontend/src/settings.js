@@ -1,5 +1,6 @@
-import { fetchResumes, uploadResume, deleteResume, downloadResume, fetchCurrentUser } from './api.js';
+import { fetchResumes, uploadResume, deleteResume, downloadResume, fetchCurrentUser, syncEmails } from './api.js';
 import { renderProfileEditView } from './profileEdit.js';
+import { renderEmailExtractorPanel } from '../emailExtractor.js';
 
 export async function renderSettingsView() {
     const mainContent = document.getElementById('main-content');
@@ -53,6 +54,21 @@ export async function renderSettingsView() {
                 <div id="resumes-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
                     <div style="text-align: center; color: var(--text-secondary); padding: 1rem;">Loading resumes...</div>
                 </div>
+                </div>
+
+                <!-- Email Automation -->
+                <div class="glass" style="padding: 1.5rem; border-radius: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <div>
+                            <h2 style="font-size: 1.25rem; font-weight: 600;">Email Automation</h2>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem;">Scan your inbox for application confirmations and save them as drafts.</p>
+                        </div>
+                        <button id="btn-sync-emails" class="btn" style="background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff; border-color: transparent; padding: 0.6rem 1.25rem; font-weight: 600; white-space: nowrap;">
+                            ⟳ Sync Emails
+                        </button>
+                    </div>
+                    <div id="email-sync-status" style="font-size: 0.82rem; color: var(--text-secondary); min-height: 1.2rem; margin-top: 0.5rem;"></div>
+                    <div id="email-extractor-panel" style="margin-top: 1rem;"></div>
                 </div>
             </div>
         </div>
@@ -119,6 +135,38 @@ export async function renderSettingsView() {
     });
 
     await renderResumesList();
+
+    // Email Sync button
+    const syncBtn = document.getElementById('btn-sync-emails');
+    const syncStatus = document.getElementById('email-sync-status');
+    const extractorPanel = document.getElementById('email-extractor-panel');
+
+    // Auto-load extractor panel on settings open
+    renderEmailExtractorPanel(extractorPanel);
+
+    syncBtn.addEventListener('click', async () => {
+        syncBtn.disabled = true;
+        syncBtn.textContent = 'Syncing…';
+        syncStatus.textContent = 'Connecting to inbox…';
+        syncStatus.style.color = 'var(--text-secondary)';
+
+        const res = await syncEmails();
+
+        syncBtn.disabled = false;
+        syncBtn.textContent = '\u27f3 Sync Emails';
+
+        if (res.success) {
+            const s = res.summary;
+            syncStatus.style.color = '#22c55e';
+            syncStatus.textContent =
+                `\u2713 Done — Scanned: ${s.scanned} | Confirmed: ${s.confirmed} | Rejected: ${s.rejected} | New drafts: ${s.drafts?.length ?? 0}`;
+            // Refresh the extractor panel
+            await renderEmailExtractorPanel(extractorPanel);
+        } else {
+            syncStatus.style.color = '#ef4444';
+            syncStatus.textContent = `\u2717 ${res.error || 'Sync failed. Check your .env credentials.'}`;
+        }
+    });
 }
 
 async function handleFileUpload(file) {

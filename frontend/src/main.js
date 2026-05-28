@@ -10,7 +10,6 @@ import { renderApplicationsListView } from './views/applications/applications.js
 import { renderSettingsView } from './settings.js';
 import { renderLoginView } from './views/auth/login.js';
 import { renderConnectionsView } from './views/connections/connections.js';
-import { renderStatsView } from './views/stats/stats.js'
 
 
 async function init() {
@@ -28,7 +27,6 @@ async function init() {
         <a href="#" id="nav-dashboard" class="nav-link active">Dashboard</a>
         <a href="#" id="nav-applications" class="nav-link">Applications</a>
         <a href="#" id="nav-connections" class="nav-link">Connections</a>
-        <a href="#" id="nav-stats" class="nav-link">Stats</a>
         <div style="flex-grow: 1;"></div>
         <a href="#" id="nav-settings" class="nav-link">Settings</a>
       </nav>
@@ -57,14 +55,6 @@ async function init() {
     e.preventDefault();
     setActiveNav('nav-connections');
     renderConnectionsView();
-  });
-
-
-  // stats
-  document.getElementById('nav-stats').addEventListener('click', (e) => {
-    e.preventDefault();
-    setActiveNav('nav-stats');
-    renderStatsView();
   });
 
   // settings
